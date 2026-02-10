@@ -4,7 +4,7 @@ import { Button, Text, TextInput, View } from "react-native";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
-  const { login, token } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

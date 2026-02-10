@@ -12,7 +12,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     const res = await login(username, password);
-    if (res.access_token) {
+    if (res.token) {
       router.replace("/");
     } else {
       setError(res.msg || "Login fallido");

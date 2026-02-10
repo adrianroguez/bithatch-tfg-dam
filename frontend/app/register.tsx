@@ -8,10 +8,11 @@ export default function Register() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
 
   const handleRegister = async () => {
-    const res = await register(username, password);
+    const res = await register(username, email, password);
     if (res.ok) {
       router.replace("/login");
     } else {
@@ -25,6 +26,12 @@ export default function Register() {
         placeholder="Usuario"
         value={username}
         onChangeText={setUsername}
+        style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
+      />
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
       <TextInput

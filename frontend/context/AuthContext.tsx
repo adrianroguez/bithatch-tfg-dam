@@ -2,14 +2,14 @@ import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import React, { createContext, useEffect, useMemo, useState } from "react";
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "";
-const TOKEN_KEY = Constants.expoConfig?.extra?.tokenKey ?? "";
+const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "http://10.108.21.0:8080";
+const TOKEN_KEY = Constants.expoConfig?.extra?.tokenKey ?? "token";
 
 type AuthContextType = {
   token: string | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<any>;
-  register: (username: string, password: string) => Promise<any>;
+  register: (username: string, email: string, password: string) => Promise<any>;
   logout: () => Promise<void>;
 };
 
@@ -34,12 +34,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadToken();
   }, []);
 
-  const register = async (username: string, password: string) => {
+  const register = async (username: string, email: string, password: string) => {
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, email, password }),
       });
       return await res.json();
     } catch (err) {
@@ -55,8 +55,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
-      if (res.ok && data.access_token) {
-        await SecureStore.setItemAsync(TOKEN_KEY, data.access_token);
+      if (res.ok && data.token) {
+        await SecureStore.setItemAsync(TOKEN_KEY, data.token);
         setToken(data.access_token);
       }
       return data;

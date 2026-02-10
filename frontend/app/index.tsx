@@ -11,7 +11,7 @@ export default function Home() {
     if (!token) {
       setTimeout(() => router.replace("/login"), 0);
     }
-  }, [token]);
+  }, [router, token]);
 
   if (!token) return null;
 

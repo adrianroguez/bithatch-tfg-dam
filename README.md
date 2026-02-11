@@ -15,3 +15,7 @@ Lluvia de Ideas:
 - Que la criatura pueda estar sobrepuesta en la pantalla cuando la app esta en segundo plano (A elección del usuario).
 
 - 
+
+Recordatorios:
+
+- Hacer un Context para todas las llamadas de la api que tienen que ver con la criatura

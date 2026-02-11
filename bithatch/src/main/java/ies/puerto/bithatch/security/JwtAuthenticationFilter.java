@@ -88,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // no autenticamos y dejamos pasar la peticion.
             // Si la ruta estaba protegida, Spring Security devolvera 403 Forbidden mas
             // adelante.
-            logger.error("No se pudo establecer la autenticacion JWT: " + e.getMessage());
+            logger.error("No se pudo establecer la autenticacion JWT: " + e.getMessage(), e);
         }
 
         // Continua con el siguiente filtro en la cadena

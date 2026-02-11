@@ -11,6 +11,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Entidad User que representa la tabla 'users' en base de datos.
+ */
 @Entity
 @Table(name = "users")
 public class User {
@@ -51,7 +54,7 @@ public class User {
      * @param id       identificador unico
      * @param username nombre de usuario
      * @param email    correo electronico
-     * @param password contrasena
+     * @param password contrasenia
      * @param role     rol del usuario
      */
     public User(Long id, String username, String email, String password, Role role) {

@@ -16,6 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ies.puerto.bithatch.repository.UserRepository;
 
+/**
+ * Configuracion de beans de la aplicacion (seguridad, repositorios, etc).
+ */
 @Configuration
 public class ApplicationConfig {
 
@@ -38,7 +41,8 @@ public class ApplicationConfig {
         return username -> repository.findByUsername(username)
                 .map(usuarioDb -> {
                     // Convertimos el rol del usuario a una autoridad de Spring Security
-                    var authorities = List.of(new SimpleGrantedAuthority(usuarioDb.getRole().name()));
+                    // IMPORTANTE: Spring Security espera el prefijo "ROLE_" para usar .hasRole()
+                    var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + usuarioDb.getRole().name()));
 
                     // Retornamos el objeto User de Spring Security con las credenciales y
                     // autoridades
@@ -79,7 +83,7 @@ public class ApplicationConfig {
     }
 
     /**
-     * Bean que configura el codificador de contraseñas.
+     * Bean que configura el codificador de contrasenias.
      * Utiliza BCrypt para hashing seguro.
      * 
      * @return Instancia de BCryptPasswordEncoder.

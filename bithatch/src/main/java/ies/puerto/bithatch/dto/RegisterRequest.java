@@ -23,6 +23,8 @@ public class RegisterRequest {
         this.password = password;
     }
 
+    // --- GETTERS Y SETTERS ---
+
     public String getUsername() {
         return username;
     }

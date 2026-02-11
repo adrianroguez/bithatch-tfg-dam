@@ -14,6 +14,10 @@ import ies.puerto.bithatch.model.User;
 import ies.puerto.bithatch.repository.UserRepository;
 import ies.puerto.bithatch.security.JwtService;
 
+/**
+ * Servicio de autenticacion.
+ * Maneja el registro y login de usuarios.
+ */
 @Service
 public class AuthService {
 

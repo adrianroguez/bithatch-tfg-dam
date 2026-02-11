@@ -17,6 +17,8 @@ public class AuthResponse {
         this.token = token;
     }
 
+    // --- GETTERS Y SETTERS ---
+
     public String getToken() {
         return token;
     }

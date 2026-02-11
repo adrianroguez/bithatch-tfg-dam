@@ -1,7 +1,14 @@
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/controller/UserController.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/service/UserService.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/config/SecurityConfig.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/exception/GlobalExceptionHandler.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/security/JwtService.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/dto/UserResponse.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/dto/UserUpdateRequest.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/config/OpenApiConfig.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/dto/LoginRequest.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/controller/AuthController.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/mapper/UserMapper.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/repository/UserRepository.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/model/Role.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/security/JwtAuthenticationFilter.java
@@ -10,4 +17,6 @@
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/service/AuthService.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/BithatchApplication.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/dto/AuthResponse.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/exception/ResourceNotFoundException.java
+/home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/config/DataLoader.java
 /home/portablepc/Escritorio/bithatch-tfg-dam/bithatch/src/main/java/ies/puerto/bithatch/model/User.java

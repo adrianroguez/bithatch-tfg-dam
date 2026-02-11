@@ -1,7 +1,7 @@
 package ies.puerto.bithatch.model;
 
 /**
- * Enumerado que define los roles de usuario disponibles
+ * Enumerado que define los roles de usuario disponibles.
  */
 public enum Role {
     /**

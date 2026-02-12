@@ -33,18 +33,18 @@ public class CreatureService {
     /**
      * Crea la criatura inicial (starter) a partir de un DTO de peticion.
      * 
-     * @param request Datos de la creacion (nombre y huevo).
-     * @param userId  ID del usuario que crea la criatura.
+     * @param request  Datos de la creacion (nombre y huevo).
+     * @param username Nombre de usuario que crea la criatura.
      * @return DTO con la criatura creada.
      */
     @Transactional
-    public CreatureResponse createStarterFromDto(CreatureCreateRequest request, Long userId) {
+    public CreatureResponse createStarterFromDto(CreatureCreateRequest request, String username) {
         // 1. Validar que el usuario existe
-        User owner = userRepository.findById(userId)
+        User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // 2. Validar que el usuario no tenga ya una criatura
-        if (creatureRepository.existsByOwnerId(userId)) {
+        if (creatureRepository.existsByOwnerId(owner.getId())) {
             throw new RuntimeException("El usuario ya posee una criatura");
         }
 
@@ -72,13 +72,25 @@ public class CreatureService {
     }
 
     /**
-     * Busca la criatura de un usuario especifico.
+     * Busca la criatura de un usuario especifico por ID.
      * 
      * @param userId ID del usuario.
      * @return Optional con la criatura si existe.
      */
     public Optional<CreatureResponse> getCreatureByUserId(Long userId) {
         return creatureRepository.findByOwnerId(userId)
+                .map(CreatureResponse::new);
+    }
+
+    /**
+     * Busca la criatura de un usuario especifico por nombre de usuario.
+     * 
+     * @param username Nombre de usuario.
+     * @return Optional con la criatura si existe.
+     */
+    public Optional<CreatureResponse> getCreatureByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .flatMap(user -> creatureRepository.findByOwnerId(user.getId()))
                 .map(CreatureResponse::new);
     }
 

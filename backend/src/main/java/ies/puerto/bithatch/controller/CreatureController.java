@@ -3,11 +3,11 @@ package ies.puerto.bithatch.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,7 +39,7 @@ public class CreatureController {
     /**
      * Obtiene la criatura asociada al usuario autenticado.
      * 
-     * @param userId ID del usuario (extraido del token).
+     * @param authentication Objeto de autenticacion de Spring Security.
      * @return Datos de la criatura.
      */
     @Operation(summary = "Obtener criatura propia", description = "Devuelve la criatura asociada al usuario autenticado")
@@ -49,10 +49,9 @@ public class CreatureController {
             @ApiResponse(responseCode = "404", description = "El usuario no tiene ninguna criatura")
     })
     @GetMapping("/my")
-    public ResponseEntity<CreatureResponse> getMyCreature(@RequestAttribute("userId") Long userId) {
-        // Como el service ya devuelve Optional<CreatureResponse>, solo mapeamos a
-        // ResponseEntity
-        return creatureService.getCreatureByUserId(userId)
+    public ResponseEntity<CreatureResponse> getMyCreature(Authentication authentication) {
+        String username = authentication.getName();
+        return creatureService.getCreatureByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -60,8 +59,8 @@ public class CreatureController {
     /**
      * Crea un starter (huevo) para el usuario.
      * 
-     * @param request Datos de creacion (nombre y tipo de huevo).
-     * @param userId  ID del usuario.
+     * @param request        Datos de creacion (nombre y tipo de huevo).
+     * @param authentication Objeto de autenticacion de Spring Security.
      * @return La criatura creada.
      */
     @Operation(summary = "Crear starter (Huevo)", description = "Permite elegir el primer huevo para comenzar el juego")
@@ -72,9 +71,9 @@ public class CreatureController {
     })
     @PostMapping("/starter")
     public ResponseEntity<CreatureResponse> createStarter(@RequestBody CreatureCreateRequest request,
-            @RequestAttribute("userId") Long userId) {
-        // El service ya devuelve CreatureResponse
-        return ResponseEntity.ok(creatureService.createStarterFromDto(request, userId));
+            Authentication authentication) {
+        String username = authentication.getName();
+        return ResponseEntity.ok(creatureService.createStarterFromDto(request, username));
     }
 
     /**

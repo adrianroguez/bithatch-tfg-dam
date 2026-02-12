@@ -1,8 +1,18 @@
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect } from "react";
-import { Button, Text, View, ActivityIndicator, Image, StyleSheet } from "react-native";
+import {
+  Button,
+  Text,
+  View,
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+} from "react-native";
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Profile from "./profile";
 
 /**
  * Mapeo de tipos de huevo a sus imagenes correspondientes.
@@ -20,12 +30,17 @@ const EGG_IMAGES: Record<string, any> = {
  * - Redirige a login si no existe token
  * - Redirige a select-egg si el usuario no tiene criatura
  * - Muestra la pantalla home si el usuario tiene una criatura
- * 
+ *
  * @returns {JSX.Element | null} Vista home o null durante redirecciones
  */
 export default function Home() {
   const { token, logout, loading: authLoading } = useContext(AuthContext);
-  const { creature, loading: creatureLoading, error, fetchCreature } = useCreature();
+  const {
+    creature,
+    loading: creatureLoading,
+    error,
+    fetchCreature,
+  } = useCreature();
   const router = useRouter();
 
   /**
@@ -76,21 +91,44 @@ export default function Home() {
   // Obtiene la imagen del huevo basada en el tipo de huevo de la criatura
   const eggImage = EGG_IMAGES[creature.eggType];
 
+  const Tab = createBottomTabNavigator();
+
   // Pantalla home principal - usuario autenticado y tiene una criatura
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>Bienvenido a Home!</Text>
 
       {/* Muestra el sprite del huevo escogido */}
-      {eggImage && (
-        <Image source={eggImage} style={styles.eggImage} />
-      )}
+      {eggImage && <Image source={eggImage} style={styles.eggImage} />}
 
       <Text style={styles.creatureInfo}>Criatura: {creature.name}</Text>
       <Text style={styles.creatureInfo}>Nivel: {creature.level}</Text>
       <Text style={styles.creatureInfo}>Tipo de huevo: {creature.eggType}</Text>
       <Text style={styles.creatureInfo}>Energia: {creature.energy}</Text>
       <Text style={styles.creatureInfo}>Felicidad: {creature.happiness}</Text>
+
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: "#6200ee",
+          tabBarInactiveTintColor: "gray",
+          tabBarStyle: { paddingBottom: 5, height: 60 },
+        }}
+      >
+        <Tab.Screen
+          name="Home"
+          component={Home}
+          options={{
+            tabBarIcon: ({ color, size }) => <Home />,
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            tabBarIcon: ({ color, size }) => <Profile />,
+          }}
+        />
+      </Tab.Navigator>
 
       <Button title="Cerrar sesion" onPress={() => void logout()} />
     </View>

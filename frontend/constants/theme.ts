@@ -1,6 +1,8 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Constantes de tema para la aplicacion.
+ * Define colores y fuentes para modos claro y oscuro.
+ * Los colores pueden ser personalizados para diferentes temas.
+ * Opciones alternativas de estilo: Nativewind, Tamagui, unistyles.
  */
 
 import { Platform } from 'react-native';
@@ -8,6 +10,10 @@ import { Platform } from 'react-native';
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+/**
+ * Paleta de colores para modos claro y oscuro.
+ * Cada modo define colores para texto, fondo, tinte, iconos y pestanhas.
+ */
 export const Colors = {
   light: {
     text: '#11181C',
@@ -27,15 +33,19 @@ export const Colors = {
   },
 };
 
+/**
+ * Familias de fuentes para diferentes plataformas.
+ * Proporciona selecciones de fuentes especificas para iOS, web y por defecto.
+ */
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
+    /** iOS UIFontDescriptorSystemDesignDefault */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
+    /** iOS UIFontDescriptorSystemDesignSerif */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
+    /** iOS UIFontDescriptorSystemDesignRounded */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
+    /** iOS UIFontDescriptorSystemDesignMonospaced */
     mono: 'ui-monospace',
   },
   default: {

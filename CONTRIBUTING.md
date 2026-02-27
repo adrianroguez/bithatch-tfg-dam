@@ -43,7 +43,7 @@ git checkout -b feature/nombre-de-la-tarea
 
 # Confirmar cambios con descripción clara
 git add .
-git commit -m "Descripción de lo que se ha implementado"
+git commit -m "Descripción de lo que se ha implementado + #número del issue"
 
 # Subir la rama al repositorio remoto
 git push origin feature/nombre-de-la-tarea

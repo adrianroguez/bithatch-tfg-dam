@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 
 /**
  * Componente de pantalla de inicio de sesion.
- * Proporciona campos de entrada para usuario y contraseña para autenticacion.
+ * Proporciona campos de entrada para usuario y contrasenha para autenticacion.
  * Redirige a la pantalla home tras un login exitoso.
  * 
  * @returns {JSX.Element} Vista de login con formulario de entrada
@@ -19,7 +19,7 @@ export default function Login() {
 
   /**
    * Maneja el envio del formulario de login.
-   * Valida que usuario y contraseña no esten vacios,
+   * Valida que usuario y contrasenha no esten vacios,
    * luego llama a la funcion login del contexto de autenticacion.
    * En caso de exito, redirige a la pantalla home.
    * En caso de fallo, muestra mensaje de error.
@@ -48,7 +48,7 @@ export default function Login() {
         onChangeText={setUsername}
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
-      {/* Campo de entrada de contraseña */}
+      {/* Campo de entrada de contrasenha */}
       <TextInput
         placeholder="contraseña"
         value={password}

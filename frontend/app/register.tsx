@@ -6,7 +6,7 @@ import { AuthContext } from "../context/AuthContext";
 /**
  * Componente de pantalla de registro de usuario.
  * Proporciona campos de formulario para crear una nueva cuenta de usuario.
- * Valida formato de email y confirmacion de contraseña antes del envio.
+ * Valida formato de email y confirmacion de contrasenha antes del envio.
  * 
  * @returns {JSX.Element} Vista de registro con campos de formulario
  */
@@ -33,7 +33,7 @@ export default function Register() {
   /**
    * Maneja el envio del formulario de registro.
    * Valida que todos los campos esten llenos, el formato de email sea correcto,
-   * y las contraseñas coincidan antes de llamar al contexto de autenticacion.
+   * y las contrasenhas coincidan antes de llamar al contexto de autenticacion.
    * En caso de exito, redirige a la pantalla de login.
    * En caso de fallo, muestra mensaje de error.
    */
@@ -79,7 +79,7 @@ export default function Register() {
         onChangeText={setEmail}
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
-      {/* Campo de entrada de contraseña */}
+      {/* Campo de entrada de contrasenha */}
       <TextInput
         placeholder="contraseña"
         value={password}
@@ -87,7 +87,7 @@ export default function Register() {
         secureTextEntry
         style={{ borderWidth: 1, marginBottom: 10, padding: 8 }}
       />
-      {/* Campo de confirmacion de contraseña */}
+      {/* Campo de confirmacion de contrasenha */}
       <TextInput
         placeholder="Repetir contraseña"
         value={confirmPassword}

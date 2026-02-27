@@ -49,7 +49,7 @@ export default function Register() {
     }
 
     if (password !== confirmPassword) {
-      setError("Las contrasenhas no coinciden");
+      setError("Las contraseñas no coinciden");
       return;
     }
 
@@ -81,7 +81,7 @@ export default function Register() {
       />
       {/* Campo de entrada de contrasenha */}
       <TextInput
-        placeholder="Contrasenha"
+        placeholder="contraseña"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -89,7 +89,7 @@ export default function Register() {
       />
       {/* Campo de confirmacion de contrasenha */}
       <TextInput
-        placeholder="Repetir contrasenha"
+        placeholder="Repetir contraseña"
         value={confirmPassword}
         onChangeText={setConfirmPassword}
         secureTextEntry

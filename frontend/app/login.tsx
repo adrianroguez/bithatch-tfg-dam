@@ -26,7 +26,7 @@ export default function Login() {
    */
   const handleLogin = async () => {
     if (!username || !password) {
-      setError("Usuario y contrasenha son obligatorios");
+      setError("Usuario y contraseña son obligatorios");
       return;
     }
     setError(""); // Limpiar errores previos
@@ -50,7 +50,7 @@ export default function Login() {
       />
       {/* Campo de entrada de contrasenha */}
       <TextInput
-        placeholder="Contrasenha"
+        placeholder="contraseña"
         value={password}
         onChangeText={setPassword}
         secureTextEntry

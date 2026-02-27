@@ -1,14 +1,14 @@
 package ies.puerto.bithatch.mapper;
 
 import ies.puerto.bithatch.dto.UserResponse;
-import ies.puerto.bithatch.model.User;
+import ies.puerto.bithatch.model.entities.User;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-02-11T15:15:33+0000",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.45.0.v20260128-0750, environment: Java 21.0.9 (Eclipse Adoptium)"
+    date = "2026-02-27T15:08:20+0000",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.45.0.v20260224-0835, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -31,7 +31,9 @@ public class UserMapperImpl implements UserMapper {
             role = user.getRole().name();
         }
 
-        UserResponse userResponse = new UserResponse( id, username, email, role );
+        boolean hasCreature = user.getCreature() != null;
+
+        UserResponse userResponse = new UserResponse( id, username, email, role, hasCreature );
 
         return userResponse;
     }

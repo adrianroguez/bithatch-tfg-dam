@@ -4,8 +4,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import ies.puerto.bithatch.model.Role;
-import ies.puerto.bithatch.model.User;
+import ies.puerto.bithatch.model.entities.User;
+import ies.puerto.bithatch.model.enums.Role;
 import ies.puerto.bithatch.repository.UserRepository;
 
 /**

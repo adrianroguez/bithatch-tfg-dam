@@ -1,10 +1,11 @@
 package ies.puerto.bithatch.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import ies.puerto.bithatch.dto.UserResponse;
-import ies.puerto.bithatch.model.User;
+import ies.puerto.bithatch.model.entities.User;
 
 /**
  * Interfaz Mapper para convertir entre Entidades y DTOs.
@@ -22,12 +23,10 @@ public interface UserMapper {
 
     /**
      * Convierte de Entidad User a DTO UserResponse.
-     * MapStruct empareja automaticamente los campos con el mismo nombre
-     * (username -> username, email -> email).
-     * 
-     * @param user Usuario entidad.
-     * @return Usuario DTO.
+     * MapStruct empareja automatischmente los campos con el mismo nombre.
+     * hasCreature se calcula en base a si user.getCreature() != null.
      */
+    @Mapping(target = "hasCreature", expression = "java(user.getCreature() != null)")
     UserResponse toUserResponse(User user);
 
     /**

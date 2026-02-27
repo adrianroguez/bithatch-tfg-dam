@@ -12,12 +12,15 @@ public class UserResponse {
     private String email;
     /** Rol del usuario (USER, ADMIN) */
     private String role;
+    /** Indica si el usuario ya tiene una criatura asignada */
+    private boolean hasCreature;
 
-    public UserResponse(Long id, String username, String email, String role) {
+    public UserResponse(Long id, String username, String email, String role, boolean hasCreature) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.role = role;
+        this.hasCreature = hasCreature;
     }
 
     // --- GETTERS Y SETTERS ---
@@ -52,5 +55,13 @@ public class UserResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isHasCreature() {
+        return hasCreature;
+    }
+
+    public void setHasCreature(boolean hasCreature) {
+        this.hasCreature = hasCreature;
     }
 }

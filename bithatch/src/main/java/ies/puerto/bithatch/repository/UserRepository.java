@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import ies.puerto.bithatch.model.User;
+import ies.puerto.bithatch.model.entities.User;
 
 /**
  * Repositorio para la gestion de usuarios en la base de datos

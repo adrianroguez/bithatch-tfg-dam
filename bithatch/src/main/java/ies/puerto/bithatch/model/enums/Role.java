@@ -1,4 +1,4 @@
-package ies.puerto.bithatch.model;
+package ies.puerto.bithatch.model.enums;
 
 /**
  * Enumerado que define los roles de usuario disponibles.

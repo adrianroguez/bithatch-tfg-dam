@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import ies.puerto.bithatch.dto.AuthResponse;
 import ies.puerto.bithatch.dto.LoginRequest;
 import ies.puerto.bithatch.dto.RegisterRequest;
-import ies.puerto.bithatch.model.Role;
-import ies.puerto.bithatch.model.User;
+import ies.puerto.bithatch.model.entities.User;
+import ies.puerto.bithatch.model.enums.Role;
 import ies.puerto.bithatch.repository.UserRepository;
 import ies.puerto.bithatch.security.JwtService;
 

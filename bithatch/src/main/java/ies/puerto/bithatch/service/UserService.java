@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import ies.puerto.bithatch.dto.UserResponse;
 import ies.puerto.bithatch.dto.UserUpdateRequest;
 import ies.puerto.bithatch.mapper.UserMapper; // <--- Importamos el mapper
-import ies.puerto.bithatch.model.Role;
-import ies.puerto.bithatch.model.User;
+import ies.puerto.bithatch.model.entities.User;
+import ies.puerto.bithatch.model.enums.Role;
 import ies.puerto.bithatch.repository.UserRepository;
 
 /**

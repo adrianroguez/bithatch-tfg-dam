@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
+    Animated,
     Image,
     Modal,
     StyleSheet,
@@ -59,6 +60,9 @@ export default function SelectEgg() {
     const [showModal, setShowModal] = useState(false);
     const [error, setError] = useState("");
 
+    // Valor animado para el efecto de levitacion del huevo
+    const floatAnimation = useRef(new Animated.Value(0)).current;
+
     /**
      * Efecto para redirigir a login si el usuario no esta autenticado.
      */
@@ -67,6 +71,27 @@ export default function SelectEgg() {
             router.replace("/login");
         }
     }, [token]);
+
+    /**
+     * Efecto para crear la animacion de levitacion del huevo.
+     * El huevo se mueve suavemente arriba y abajo en un loop infinito.
+     */
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(floatAnimation, {
+                    toValue: -10,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(floatAnimation, {
+                    toValue: 0,
+                    duration: 1500,
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, []);
 
     const currentEgg = EGG_OPTIONS[currentIndex];
 
@@ -110,20 +135,33 @@ export default function SelectEgg() {
             <Text style={styles.title}>Escoge un huevo</Text>
 
             {/* Slider de huevos */}
-            <View style={styles.sliderContainer}>
-                <TouchableOpacity onPress={prevEgg} style={styles.navButton}>
-                    <Text style={styles.navButtonText}>{"<"}</Text>
-                </TouchableOpacity>
+            <View style={styles.eggContentWrapper}>
+                {/* Contenedor de imagen con flechas - alineacion automatica */}
+                <View style={styles.sliderContainer}>
+                    <TouchableOpacity onPress={prevEgg} style={styles.navButton}>
+                        <Text style={styles.navButtonText}>{"<"}</Text>
+                    </TouchableOpacity>
 
-                <View style={styles.eggDisplay}>
-                    <Image source={currentEgg.image} style={styles.eggImage} />
+                    <Animated.Image
+                        source={currentEgg.image}
+                        style={[
+                            styles.eggImage,
+                            {
+                                transform: [{ translateY: floatAnimation }]
+                            }
+                        ]}
+                    />
+
+                    <TouchableOpacity onPress={nextEgg} style={styles.navButton}>
+                        <Text style={styles.navButtonText}>{">"}</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Informacion del huevo debajo */}
+                <View style={styles.eggInfo}>
                     <Text style={styles.eggName}>{currentEgg.name}</Text>
                     <Text style={styles.eggDescription}>{currentEgg.description}</Text>
                 </View>
-
-                <TouchableOpacity onPress={nextEgg} style={styles.navButton}>
-                    <Text style={styles.navButtonText}>{">"}</Text>
-                </TouchableOpacity>
             </View>
 
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -177,12 +215,17 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         textAlign: "center",
     },
-    sliderContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
+    eggContentWrapper: {
         width: "100%",
         marginBottom: 40,
+        alignItems: "center",
+    },
+    sliderContainer: {
+        flexDirection: "row",
+        alignItems: "center", // Alinea automaticamente las flechas al centro de la imagen
+        justifyContent: "center",
+        width: "100%",
+        gap: 20, // Espacio entre flechas e imagen
     },
     navButton: {
         padding: 15,
@@ -193,15 +236,14 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
     },
-    eggDisplay: {
-        alignItems: "center",
-        flex: 1,
-    },
     eggImage: {
         width: 150,
         height: 150,
         resizeMode: "contain",
-        marginBottom: 10,
+    },
+    eggInfo: {
+        alignItems: "center",
+        marginTop: 10,
     },
     eggName: {
         fontSize: 18,

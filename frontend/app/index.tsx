@@ -68,7 +68,7 @@ export default function Home() {
 
       {/* ÁREA CENTRAL: Avatar y Burbuja "Hablar" */}
       <View style={styles.mainContent}>
-        <TouchableOpacity style={styles.talkBubble}>
+        <TouchableOpacity style={styles.talkBubble} onPress={() => router.push("/chat")}>
           <Text style={styles.talkText}>Hablar</Text>
         </TouchableOpacity>
 
@@ -78,7 +78,7 @@ export default function Home() {
         </View>
       </View>
 
-      {/* FOOTER */}
+      {/* FOOTER TODO: Rutas*/}
       <View style={styles.footer}>
         <TouchableOpacity 
           style={[styles.navButton, { borderColor: "#FF4D4D" }]} 
@@ -89,14 +89,14 @@ export default function Home() {
 
         <TouchableOpacity 
           style={[styles.navButton, { borderColor: "#4D94FF" }]}
-          onPress={() => router.push("/stats" as any)}
+          onPress={() => router.push("" as any)}
         >
           <Text style={styles.navButtonText}>Criatura</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.navButton, { borderColor: "#4CAF50" }]}
-          onPress={() => router.push("/social" as any)}
+          onPress={() => router.push("" as any)}
         >
           <Text style={styles.navButtonText}>Batalla</Text>
         </TouchableOpacity>

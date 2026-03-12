@@ -1,12 +1,20 @@
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect } from "react";
-import { Button, Text, View, ActivityIndicator, Image, StyleSheet } from "react-native";
+import { 
+  Text, 
+  View, 
+  ActivityIndicator, 
+  Image, 
+  StyleSheet, 
+  TouchableOpacity, 
+  SafeAreaView 
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons"; // Asegúrate de tener expo/vector-icons instalado
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
 
 /**
- * Mapeo de tipos de huevo a sus imagenes correspondientes.
- * Debe coincidir con los tipos de huevo definidos en select-egg.tsx
+ * Mapeo de tipos de huevo/criatura a sus imágenes.
  */
 const EGG_IMAGES: Record<string, any> = {
   EGG_A: require("../assets/egg_a.png"),
@@ -14,110 +22,174 @@ const EGG_IMAGES: Record<string, any> = {
   EGG_C: require("../assets/egg_c.png"),
 };
 
-/**
- * Componente principal (Home) de la aplicacion.
- * Maneja la logica de navegacion basada en el estado de autenticacion y criatura:
- * - Redirige a login si no existe token
- * - Redirige a select-egg si el usuario no tiene criatura
- * - Muestra la pantalla home si el usuario tiene una criatura
- * 
- * @returns {JSX.Element | null} Vista home o null durante redirecciones
- */
 export default function Home() {
   const { token, logout, loading: authLoading } = useContext(AuthContext);
   const { creature, loading: creatureLoading, error, fetchCreature } = useCreature();
   const router = useRouter();
 
-  /**
-   * Efecto de navegacion que se ejecuta cuando cambia el estado de auth o criatura.
-   * Implementa el siguiente flujo:
-   * 1. Si no hay token -> redirige a login
-   * 2. Si no hay criatura -> redirige a seleccion de huevo
-   * 3. De lo contrario -> muestra pantalla home
-   */
   useEffect(() => {
     if (authLoading || creatureLoading) return;
 
     if (!token) {
       router.replace("/login");
     } else if (!creature) {
-      // Si no tiene criatura, ir a seleccion de huevo
-      // Usando cast 'as any' para evitar errores de tipado estricto en rutas dinamicas/nuevas
       router.replace("/select-egg" as any);
     }
   }, [token, creature, authLoading, creatureLoading, router]);
 
-  // Muestra indicador de carga mientras se obtiene autenticacion o datos de criatura
   if (authLoading || creatureLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
-  // Retorna null si no esta autenticado (redirigira a login)
-  if (!token) return null;
+  if (!token || !creature) return null;
 
-  // Muestra pantalla de error si hubo un problema obteniendo datos de criatura
-  if (error) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: "red", marginBottom: 10 }}>Error: {error}</Text>
-        <Button title="Reintentar" onPress={() => void fetchCreature()} />
-        <Button title="Cerrar sesion" onPress={() => void logout()} />
-      </View>
-    );
-  }
+  // Intentamos obtener la imagen de la criatura, si no, usamos una por defecto
+  const creatureImage = EGG_IMAGES[creature.eggType];
 
-  // Retorna null si no hay criatura (redirigira a seleccion de huevo)
-  if (!creature) return null;
-
-  // Obtiene la imagen del huevo basada en el tipo de huevo de la criatura
-  const eggImage = EGG_IMAGES[creature.eggType];
-
-  // Pantalla home principal - usuario autenticado y tiene una criatura
   return (
-    <View style={styles.container}>
-      <Text style={styles.welcomeText}>Bienvenido a Home!</Text>
+    <SafeAreaView style={styles.container}>
+      
+      {/* HEADER: Iconos superiores del Mockup */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => {/* Abrir Menú */}}>
+          <Ionicons name="grid-outline" size={28} color="black" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={() => router.push("/profile" as any)}>
+          <View style={styles.profileCircle}>
+            <Ionicons name="person-outline" size={24} color="#666" />
+          </View>
+        </TouchableOpacity>
+      </View>
 
-      {/* Muestra el sprite del huevo escogido */}
-      {eggImage && (
-        <Image source={eggImage} style={styles.eggImage} />
-      )}
+      {/* ÁREA CENTRAL: Avatar y Burbuja "Hablar" */}
+      <View style={styles.mainContent}>
+        <TouchableOpacity style={styles.talkBubble}>
+          <Text style={styles.talkText}>Hablar</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.creatureInfo}>Criatura: {creature.name}</Text>
-      <Text style={styles.creatureInfo}>Nivel: {creature.level}</Text>
-      <Text style={styles.creatureInfo}>Tipo de huevo: {creature.eggType}</Text>
-      <Text style={styles.creatureInfo}>Energia: {creature.energy}</Text>
-      <Text style={styles.creatureInfo}>Felicidad: {creature.happiness}</Text>
+        <View style={styles.avatarWrapper}>
+          <Image source={creatureImage} style={styles.avatarImage} />
+          <Text style={styles.creatureName}>{creature.name || "Criatura / Huevo"}</Text>
+        </View>
+      </View>
 
-      <Button title="Cerrar sesion" onPress={() => void logout()} />
-    </View>
+      {/* FOOTER: Botones con bordes de colores del Mockup */}
+      <View style={styles.footer}>
+        <TouchableOpacity 
+          style={[styles.navButton, { borderColor: "#FF4D4D" }]} 
+          onPress={() => router.push("/exercises" as any)}
+        >
+          <Text style={styles.navButtonText}>Ejercicios</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.navButton, { borderColor: "#4D94FF" }]}
+          onPress={() => router.push("/stats" as any)}
+        >
+          <Text style={styles.navButtonText}>Criatura</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.navButton, { borderColor: "#4CAF50" }]}
+          onPress={() => router.push("/social" as any)}
+        >
+          <Text style={styles.navButtonText}>Batalla</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Botón temporal de Logout para desarrollo */}
+      <TouchableOpacity style={styles.logoutBtn} onPress={() => void logout()}>
+        <Text style={{color: 'gray', fontSize: 10}}>Cerrar Sesión</Text>
+      </TouchableOpacity>
+
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  centered: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
-    backgroundColor: "#f5f5f5",
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 15,
   },
-  eggImage: {
-    width: 200,
-    height: 200,
-    resizeMode: "contain",
-    marginVertical: 20,
+  profileCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  creatureInfo: {
+  mainContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  talkBubble: {
+    borderWidth: 1.5,
+    borderColor: "#FFA500",
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    marginBottom: 30,
+  },
+  talkText: {
     fontSize: 16,
-    marginVertical: 5,
+    fontWeight: "500",
   },
+  avatarWrapper: {
+    alignItems: "center",
+  },
+  avatarImage: {
+    width: 180,
+    height: 180,
+    resizeMode: "contain",
+  },
+  creatureName: {
+    marginTop: 20,
+    fontSize: 18,
+    color: "#333",
+  },
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingBottom: 40,
+    paddingHorizontal: 10,
+  },
+  navButton: {
+    borderWidth: 2,
+    borderRadius: 25,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    minWidth: 100,
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  navButtonText: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  logoutBtn: {
+    position: 'absolute',
+    bottom: 5,
+    alignSelf: 'center'
+  }
 });

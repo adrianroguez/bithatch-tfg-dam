@@ -18,7 +18,7 @@ export default function Profile() {
   const { creature } = useCreature();
   const router = useRouter();
 
-  // Datos de ejemplo para las barras de progreso (basado en tu gráfico de barras)
+  // Datos de ejemplo 
   const stats = [
     { label: "Rendimiento Semanal", value: 0.8, color: "#4D94FF" },
     { label: "Progreso Físico", value: 0.4, color: "#4D94FF" },
@@ -26,13 +26,13 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header con flecha de regreso */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={28} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tarjeta de entrenador</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.replace("/edit-perfil")}>
           <Ionicons name="create-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -51,10 +51,10 @@ export default function Profile() {
             </View>
           </View>
 
-          {/* Imagen de la Criatura en el perfil (Silueta negra) */}
+          {/* Imagen de la Criatura */}
           <View style={styles.creatureSection}>
             <Image 
-              source={require("../assets/egg_b.png")} 
+              source={require(`../assets/egg_b.png`)} 
               style={styles.creatureSmallImage} 
             />
             <Text style={styles.creatureTypeText}>Compañero: {creature?.name}</Text>
@@ -62,7 +62,7 @@ export default function Profile() {
 
           <View style={styles.divider} />
 
-          {/* Sección de Gráficos (Barras azules del mockup) */}
+          {/* Sección de Gráficos */}
           <View style={styles.statsContainer}>
             <Text style={styles.statsTitle}>Estadísticas Generales</Text>
             {stats.map((stat, index) => (
@@ -76,7 +76,7 @@ export default function Profile() {
           </View>
         </View>
 
-        {/* Botón de Cerrar Sesión Estilizado */}
+        {/* Botón de Cerrar Sesión */}
         <TouchableOpacity style={styles.logoutButton} onPress={() => {void logout(), router.replace("/")}}>
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>

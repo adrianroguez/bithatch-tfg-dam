@@ -9,7 +9,7 @@ import {
   TouchableOpacity, 
   SafeAreaView 
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Asegúrate de tener expo/vector-icons instalado
+import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
 
@@ -53,13 +53,13 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.container}>
       
-      {/* HEADER: Iconos superiores del Mockup */}
+      {/* HEADER */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => {/* Abrir Menú */}}>
           <Ionicons name="grid-outline" size={28} color="black" />
         </TouchableOpacity>
         
-        <TouchableOpacity onPress={() => router.push("/profile" as any)}>
+        <TouchableOpacity onPress={() => router.push("/perfil" as any)}>
           <View style={styles.profileCircle}>
             <Ionicons name="person-outline" size={24} color="#666" />
           </View>
@@ -78,7 +78,7 @@ export default function Home() {
         </View>
       </View>
 
-      {/* FOOTER: Botones con bordes de colores del Mockup */}
+      {/* FOOTER */}
       <View style={styles.footer}>
         <TouchableOpacity 
           style={[styles.navButton, { borderColor: "#FF4D4D" }]} 
@@ -102,7 +102,7 @@ export default function Home() {
         </TouchableOpacity>
       </View>
 
-      {/* Botón temporal de Logout para desarrollo */}
+      {/* PROVICIONAL Botón de Logout */}
       <TouchableOpacity style={styles.logoutBtn} onPress={() => void logout()}>
         <Text style={{color: 'gray', fontSize: 10}}>Cerrar Sesión</Text>
       </TouchableOpacity>

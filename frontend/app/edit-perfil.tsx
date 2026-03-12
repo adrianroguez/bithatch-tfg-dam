@@ -1,86 +1,106 @@
 import { useRouter } from "expo-router";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { 
   Text, 
   View, 
   StyleSheet, 
   TouchableOpacity, 
   SafeAreaView, 
+  TextInput,
   Image,
-  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
-import { useCreature } from "../context/CreatureContext";
 
-export default function Profile() {
-  const { logout } = useContext(AuthContext);
-  const { creature } = useCreature();
+export default function EditProfile() {
   const router = useRouter();
 
-  // Datos de ejemplo para las barras de progreso (basado en tu gráfico de barras)
-  const stats = [
-    { label: "Rendimiento Semanal", value: 0.8, color: "#4D94FF" },
-    { label: "Progreso Físico", value: 0.4, color: "#4D94FF" },
-  ];
+  // Estados para los inputs
+  const [name, setName] = useState("Usuario-prueba");
+  const [email, setEmail] = useState("usuario@email.com");
+  const [password, setPassword] = useState("user123");
+
+  const handleSave = () => {
+    // TODO: Aquí la lógica para actualizar en el backend
+    console.log("Datos guardados:", { name, email, password });
+    router.back();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header con flecha de regreso */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={28} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tarjeta de entrenador</Text>
-        <TouchableOpacity>
-          <Ionicons name="create-outline" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Sección Superior: Foto y Datos */}
-        <View style={styles.card}>
-          <View style={styles.row}>
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={50} color="#CCC" />
-            </View>
-            <View style={styles.userInfo}>
-              <Text style={styles.userName}>{ "Nombre Usuario"}</Text>
-              <Text style={styles.userSubText}>{ "usuario@correo.com"}</Text>
-              <Text style={styles.userSubText}>ID: #001234</Text>
-            </View>
-          </View>
-
-          {/* Imagen de la Criatura en el perfil (Silueta negra) */}
-          <View style={styles.creatureSection}>
-            <Image 
-              source={require("../assets/egg_b.png")} 
-              style={styles.creatureSmallImage} 
-            />
-            <Text style={styles.creatureTypeText}>Compañero: {creature?.name}</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* Sección de Gráficos (Barras azules del mockup) */}
-          <View style={styles.statsContainer}>
-            <Text style={styles.statsTitle}>Estadísticas Generales</Text>
-            {stats.map((stat, index) => (
-              <View key={index} style={styles.statRow}>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-                <View style={styles.barBackground}>
-                  <View style={[styles.barFill, { width: `${stat.value * 100}%`, backgroundColor: stat.color }]} />
-                </View>
-              </View>
-            ))}
-          </View>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        {/* Header simple */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="close-outline" size={30} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Editar Perfil</Text>
+          <View style={{ width: 30 }} /> 
         </View>
 
-        {/* Botón de Cerrar Sesión Estilizado */}
-        <TouchableOpacity style={styles.logoutButton} onPress={() => {void logout(), router.replace("/")}}>
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
-        </TouchableOpacity>
-      </ScrollView>
+        <ScrollView contentContainerStyle={styles.content}>
+          {/* Foto de perfil */}
+          <View style={styles.avatarSection}>
+            <View style={styles.avatarCircle}>
+               <Ionicons name="person" size={60} color="#CCC" />
+               <TouchableOpacity style={styles.editIconBadge}>
+                  <Ionicons name="camera" size={18} color="white" />
+               </TouchableOpacity>
+            </View>
+            <Image 
+              source={require("../assets/egg_c.png")} 
+              style={styles.creatureSmall} 
+            />
+          </View>
+
+          {/* Formulario */}
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Nombre de usuario</Text>
+              <TextInput 
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Tu nombre"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput 
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="correo@ejemplo.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Nueva Contraseña</Text>
+              <TextInput 
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="********"
+                secureTextEntry
+              />
+            </View>
+          </View>
+
+          {/* Botón Guardar */}
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>GUARDAR</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -88,7 +108,7 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "white",
   },
   header: {
     flexDirection: "row",
@@ -96,111 +116,85 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
-    backgroundColor: "white",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
   },
-  scrollContent: {
-    padding: 20,
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 15,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  row: {
-    flexDirection: "row",
+  content: {
+    paddingHorizontal: 30,
     alignItems: "center",
-    marginBottom: 20,
   },
-  avatarPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    backgroundColor: "#F0F0F0",
+  avatarSection: {
+    alignItems: "center",
+    marginVertical: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20
+  },
+  avatarCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#F5F5F5",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#DDD",
+    borderColor: "#EEE",
   },
-  userInfo: {
-    marginLeft: 15,
+  editIconBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#4D94FF',
+    padding: 8,
+    borderRadius: 20,
   },
-  userName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
+  creatureSmall: {
+    width: 60,
+    height: 60,
+    resizeMode: 'contain',
+    opacity: 0.6
   },
-  userSubText: {
+  form: {
+    width: "100%",
+    marginTop: 20,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
     fontSize: 14,
-    color: "#777",
-    marginTop: 2,
-  },
-  creatureSection: {
-    alignItems: "center",
-    marginVertical: 15,
-  },
-  creatureSmallImage: {
-    width: 100,
-    height: 100,
-    resizeMode: "contain",
-  },
-  creatureTypeText: {
-    marginTop: 5,
-    fontSize: 14,
-    color: "#555",
-    fontStyle: "italic",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#EEE",
-    marginVertical: 15,
-  },
-  statsContainer: {
-    marginTop: 10,
-  },
-  statsTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#444",
-  },
-  statRow: {
-    marginBottom: 15,
-  },
-  statLabel: {
-    fontSize: 12,
     color: "#666",
-    marginBottom: 5,
+    marginBottom: 8,
+    fontWeight: "500",
   },
-  barBackground: {
-    height: 10,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 5,
-    overflow: "hidden",
+  input: {
+    borderWidth: 1,
+    borderColor: "#DDD",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: "#FAFAFA",
   },
-  barFill: {
-    height: "100%",
-    borderRadius: 5,
-  },
-  logoutButton: {
-    marginTop: 30,
-    backgroundColor: "#FFEBEE",
+  saveButton: {
+    backgroundColor: "#4D94FF",
+    width: "100%",
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginTop: 30,
+    marginBottom: 40,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
   },
-  logoutText: {
-    color: "#D32F2F",
-    fontWeight: "600",
+  saveButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
   },
 });

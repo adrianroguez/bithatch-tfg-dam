@@ -19,3 +19,5 @@ Lluvia de Ideas:
 Recordatorios:
 
 - Hacer un Context para todas las llamadas de la api que tienen que ver con la criatura
+
+- Hechar un ojo a tanstack@react-query para facilitar las conecciones con la api

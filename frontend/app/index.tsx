@@ -24,7 +24,7 @@ const EGG_IMAGES: Record<string, any> = {
 
 export default function Home() {
   const { token, logout, loading: authLoading } = useContext(AuthContext);
-  const { creature, loading: creatureLoading, error, fetchCreature } = useCreature();
+  const { creature, loading: creatureLoading } = useCreature();
   const router = useRouter();
 
   useEffect(() => {

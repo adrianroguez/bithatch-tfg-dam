@@ -82,7 +82,7 @@ export default function Home() {
       <View style={styles.footer}>
         <TouchableOpacity 
           style={[styles.navButton, { borderColor: "#FF4D4D" }]} 
-          onPress={() => router.push("/exercises" as any)}
+          onPress={() => router.push("/ejercicio" as any)}
         >
           <Text style={styles.navButtonText}>Ejercicios</Text>
         </TouchableOpacity>

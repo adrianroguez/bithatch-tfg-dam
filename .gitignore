@@ -374,3 +374,41 @@ buck-out/
 .fakebuckversion
 
 # End of https://www.toptal.com/developers/gitignore/api/node,react,reactnative,java
+
+### Proyecto BitHatch ###
+
+## Backend - Spring Boot ##
+# Directorio de salida de Maven (binarios, JARs compilados)
+target/
+# Archivos de configuracion con secretos (BBDD, JWT, etc.)
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-secret.properties
+application-local.properties
+application-secret.properties
+
+## Frontend - Expo / React Native ##
+# Cache interna de Expo (generada automaticamente al arrancar)
+frontend/.expo/
+# Directorio de dependencias de Node
+frontend/node_modules/
+# Lock file de npm (se regenera en cada instalacion limpia)
+frontend/package-lock.json
+
+## IDEs ##
+# IntelliJ IDEA
+.idea/
+*.iml
+# VS Code
+.vscode/
+# Eclipse
+.project
+.classpath
+.settings/
+
+## Sistema operativo ##
+# macOS
+.DS_Store
+# Linux
+*~
+# Windows
+Thumbs.db

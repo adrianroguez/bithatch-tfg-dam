@@ -37,7 +37,7 @@ git checkout develop
 git pull origin develop
 
 # Crear rama nueva basada en el issue
-git checkout -b feature/nombre-de-la-tarea
+git checkout -b feature/issue-nº de la issue-nombre-de-la-tarea
 
 # (Realizar cambios en el código...)
 
@@ -46,7 +46,7 @@ git add .
 git commit -m "Descripción de lo que se ha implementado + #número del issue"
 
 # Subir la rama al repositorio remoto
-git push origin feature/nombre-de-la-tarea
+git push origin feature/issue-nº de la issue-nombre-de-la-tarea
 ```
 
 ## 📋 Reglas del Proyecto

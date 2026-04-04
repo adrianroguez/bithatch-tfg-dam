@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import React, { createContext, useEffect, useMemo, useState } from "react";
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "http://10.108.20.0:8080";
+const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "http://192.168.1.232:8080";
 const TOKEN_KEY = Constants.expoConfig?.extra?.tokenKey ?? "token";
 
 /**

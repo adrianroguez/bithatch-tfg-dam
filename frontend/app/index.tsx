@@ -12,6 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
+import { Navbar } from "../components/Navbar";
 
 /**
  * Mapeo de tipos de huevo/criatura a sus imágenes.
@@ -78,29 +79,8 @@ export default function Home() {
         </View>
       </View>
 
-      {/* FOOTER TODO: Rutas*/}
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.navButton, { borderColor: "#FF4D4D" }]} 
-          onPress={() => router.push("/ejercicio" as any)}
-        >
-          <Text style={styles.navButtonText}>Ejercicios</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.navButton, { borderColor: "#4D94FF" }]}
-          onPress={() => router.push("" as any)}
-        >
-          <Text style={styles.navButtonText}>Criatura</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.navButton, { borderColor: "#4CAF50" }]}
-          onPress={() => router.push("" as any)}
-        >
-          <Text style={styles.navButtonText}>Batalla</Text>
-        </TouchableOpacity>
-      </View>
+      {/* FOOTER */}
+      <Navbar />
 
       {/* PROVICIONAL Botón de Logout */}
       <TouchableOpacity style={styles.logoutBtn} onPress={() => void logout()}>

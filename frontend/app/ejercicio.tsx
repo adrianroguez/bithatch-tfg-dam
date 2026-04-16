@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { Navbar } from "../components/Navbar";
 
 // Datos basados en los iconos de tu mockup
 const EXERCISES_DATA = [
@@ -23,8 +24,18 @@ const EXERCISES_DATA = [
 export default function ExercisesScreen() {
   const router = useRouter();
 
+  const handleExercisePress = (item: typeof EXERCISES_DATA[0]) => {
+    router.push({
+      pathname: "/ejercicio-detalle",
+      params: { id: item.id, name: item.name, metric: item.metric }
+    });
+  };
+
   const renderItem = ({ item }: { item: typeof EXERCISES_DATA[0] }) => (
-    <View style={styles.tableRow}>
+    <TouchableOpacity 
+      style={styles.tableRow} 
+      onPress={() => handleExercisePress(item)}
+    >
       <View style={styles.iconColumn}>
         <MaterialCommunityIcons name={item.icon as any} size={24} color="#555" />
       </View>
@@ -34,24 +45,18 @@ export default function ExercisesScreen() {
       <View style={styles.metricColumn}>
         <Text style={styles.exerciseMetric}>{item.metric}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header con pestañas (Tab 1, Tab 2, Tab 3 del mockup) */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Ejercicios</Text>
         <View style={{ width: 24 }} />
-      </View>
-
-      <View style={styles.tabContainer}>
-        <TouchableOpacity style={[styles.tab, styles.activeTab]}><Text style={styles.tabText}>Tab 1</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Tab 2</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.tab}><Text style={styles.tabText}>Tab 3</Text></TouchableOpacity>
       </View>
 
       {/* Contenedor de la Tabla */}
@@ -76,12 +81,7 @@ export default function ExercisesScreen() {
         />
       </View>
 
-      {/* Botón de acción inferior (el botón cuadrado con icono de flecha del mockup) */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="play" size={30} color="white" />
-        </TouchableOpacity>
-      </View>
+      <Navbar />
     </SafeAreaView>
   );
 }

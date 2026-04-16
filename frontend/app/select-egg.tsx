@@ -114,20 +114,14 @@ export default function SelectEgg() {
     };
 
     /**
-     * Confirma la seleccion de huevo y crea la criatura inicial.
-     * Llama a la API del backend para crear la criatura y redirige a home en caso de exito.
-     * Muestra mensaje de error si la creacion falla.
+     * Confirma la selección de huevo y redirige a la pantalla de nacimiento para ponerle nombre.
      */
-    const confirmSelection = async () => {
-        const res = await createStarter(currentEgg.name, currentEgg.type);
-
-        if (res.ok) {
-            setShowModal(false);
-            router.replace("/");
-        } else {
-            setError(res.msg || "Error al seleccionar huevo");
-            setShowModal(false);
-        }
+    const confirmSelection = () => {
+        setShowModal(false);
+        router.push({
+            pathname: "/nacimiento",
+            params: { eggType: currentEgg.type }
+        });
     };
 
     return (

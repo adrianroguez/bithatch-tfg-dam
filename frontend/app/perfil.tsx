@@ -4,118 +4,192 @@ import {
   Text, 
   View, 
   StyleSheet, 
-  TouchableOpacity, 
-  SafeAreaView, 
+  Pressable, 
   Image,
   ScrollView 
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+import BrickWallPanel from "../components/BrickWallPanel";
+import { Navbar } from "../components/Navbar";
 
 export default function Profile() {
   const { logout } = useContext(AuthContext);
   const { creature } = useCreature();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
-  // Datos de ejemplo 
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
+
   const stats = [
-    { label: "Rendimiento Semanal", value: 0.8, color: "#4D94FF" },
-    { label: "Progreso Físico", value: 0.4, color: "#4D94FF" },
+    { label: "RENDIMIENTO", value: 0.8, color: "#388E3C" },
+    { label: "PROGRESO", value: 0.4, color: "#1976D2" },
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={28} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tarjeta de entrenador</Text>
-        <TouchableOpacity onPress={() => router.replace("/edit-perfil")}>
-          <Ionicons name="create-outline" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Sección Superior: Foto y Datos */}
-        <View style={styles.card}>
-          <View style={styles.row}>
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={50} color="#CCC" />
+    <View style={styles.root}>
+      {/* ── PANEL SUPERIOR ── */}
+      <BrickWallPanel rows={6}>
+        <View style={[styles.topButtons, { paddingTop: insets.top }]}>
+          <Pressable
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.btnPressed]}
+            onPressIn={handlePressIn}
+            onPress={() => router.back()}
+          >
+            <View style={styles.iconBtnInner}>
+              <Ionicons name="arrow-back" size={22} color="#fff" />
+              <Text style={styles.iconBtnLabel}>Atras</Text>
             </View>
-            <View style={styles.userInfo}>
-              <Text style={styles.userName}>{ "Nombre Usuario"}</Text>
-              <Text style={styles.userSubText}>{ "usuario@correo.com"}</Text>
-              <Text style={styles.userSubText}>ID: #001234</Text>
+          </Pressable>
+
+          <View style={styles.titleRow}>
+            <Text style={styles.titleBit}>Perf</Text>
+            <Text style={styles.titleHatch}>il</Text>
+          </View>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.iconBtn, 
+              {backgroundColor: '#FFA000', borderColor: '#FF6F00'}, 
+              pressed && styles.btnPressed
+            ]}
+            onPressIn={handlePressIn}
+            onPress={() => router.replace("/edit-perfil")}
+          >
+            <View style={styles.iconBtnInner}>
+              <Ionicons name="create-outline" size={22} color="#fff" />
+              <Text style={styles.iconBtnLabel}>Editar</Text>
             </View>
-          </View>
-
-          {/* Imagen de la Criatura */}
-          <View style={styles.creatureSection}>
-            <Image 
-              source={require(`../assets/egg_b.png`)} 
-              style={styles.creatureSmallImage} 
-            />
-            <Text style={styles.creatureTypeText}>Compañero: {creature?.name}</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* Sección de Gráficos */}
-          <View style={styles.statsContainer}>
-            <Text style={styles.statsTitle}>Estadísticas Generales</Text>
-            {stats.map((stat, index) => (
-              <View key={index} style={styles.statRow}>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-                <View style={styles.barBackground}>
-                  <View style={[styles.barFill, { width: `${stat.value * 100}%`, backgroundColor: stat.color }]} />
-                </View>
-              </View>
-            ))}
-          </View>
+          </Pressable>
         </View>
+      </BrickWallPanel>
 
-        {/* Botón de Cerrar Sesión */}
-        <TouchableOpacity style={styles.logoutButton} onPress={() => {void logout(), router.replace("/")}}>
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+      {/* ── PANTALLA CENTRAL (LCD Hundida) ── */}
+      <View style={styles.screen}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={50} color="#78909C" />
+              </View>
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>Entrenador</Text>
+                <Text style={styles.userSubText}>ID: #001234</Text>
+              </View>
+            </View>
+
+            <View style={styles.creatureSection}>
+              <Image 
+                source={require(`../assets/egg_b.png`)} 
+                style={styles.creatureSmallImage} 
+              />
+              <Text style={styles.creatureTypeText}>Compañero: {creature?.name}</Text>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.statsContainer}>
+              <Text style={styles.statsTitle}>Estadísticas</Text>
+              {stats.map((stat, index) => (
+                <View key={index} style={styles.statRow}>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                  <View style={styles.barBackground}>
+                    <View style={[styles.barFill, { width: `${stat.value * 100}%`, backgroundColor: stat.color }]} />
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <Pressable 
+              style={({pressed}) => [styles.logoutButton, pressed && styles.btnPressed]} 
+              onPressIn={handlePressIn}
+              onPress={() => {void logout(), router.replace("/")}}
+            >
+              <Text style={styles.logoutText}>Cerrar Sesión</Text>
+            </Pressable>
+
+          </View>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#fff",
   },
-  header: {
+  topButtons: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
-    backgroundColor: "white",
+    paddingHorizontal: 16,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+  btnPressed: {
+    transform: [{ translateY: 3 }],
+    borderBottomWidth: 2,
+    marginTop: 3,
+  },
+  iconBtn: {
+    backgroundColor: "#388E3C", 
+    borderRadius: 14,
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: "#1B5E20", 
+  },
+  iconBtnInner: {
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  iconBtnLabel: {
+    color: "#fff",
+    fontSize: 9,
+    marginTop: 3,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  titleBit: {
+    fontSize: 22,
+    color: "#111",
+    fontFamily: "PressStart2P",
+  },
+  titleHatch: {
+    fontSize: 22,
+    color: "#388E3C",
+    fontFamily: "PressStart2P",
+  },
+  screen: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#E8F5E9",
+    borderWidth: 8,
+    borderTopColor: "#78909C",
+    borderLeftColor: "#90A4AE",
+    borderRightColor: "#CFD8DC",
+    borderBottomColor: "#FFFFFF",
   },
   scrollContent: {
-    padding: 20,
+    paddingBottom: 20,
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 15,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 3,
+    borderColor: "#A5D6A7",
   },
   row: {
     flexDirection: "row",
@@ -126,81 +200,92 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 10,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: "#CFD8DC",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#DDD",
+    borderWidth: 3,
+    borderColor: "#90A4AE",
   },
   userInfo: {
     marginLeft: 15,
   },
   userName: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
     color: "#333",
+    fontFamily: "PressStart2P",
+    marginBottom: 5,
   },
   userSubText: {
-    fontSize: 14,
-    color: "#777",
-    marginTop: 2,
+    fontSize: 10,
+    color: "#555",
+    fontFamily: "PressStart2P",
   },
   creatureSection: {
     alignItems: "center",
     marginVertical: 15,
   },
   creatureSmallImage: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 120,
     resizeMode: "contain",
   },
   creatureTypeText: {
     marginTop: 5,
-    fontSize: 14,
-    color: "#555",
-    fontStyle: "italic",
+    fontSize: 12,
+    color: "#2E7D32",
+    fontFamily: "PressStart2P",
   },
   divider: {
-    height: 1,
-    backgroundColor: "#EEE",
+    height: 3,
+    backgroundColor: "#A5D6A7",
     marginVertical: 15,
   },
   statsContainer: {
     marginTop: 10,
   },
   statsTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
+    fontSize: 14,
     marginBottom: 15,
     color: "#444",
+    fontFamily: "PressStart2P",
+    textAlign: "center",
   },
   statRow: {
     marginBottom: 15,
   },
   statLabel: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 5,
+    fontSize: 10,
+    color: "#333",
+    marginBottom: 8,
+    fontFamily: "PressStart2P",
   },
   barBackground: {
-    height: 10,
-    backgroundColor: "#E0E0E0",
+    height: 14,
+    backgroundColor: "#CFD8DC",
+    borderWidth: 2,
+    borderColor: "#90A4AE",
     borderRadius: 5,
     overflow: "hidden",
   },
   barFill: {
     height: "100%",
-    borderRadius: 5,
+    borderRadius: 0,
+    borderRightWidth: 2,
+    borderColor: "#000",
   },
   logoutButton: {
     marginTop: 30,
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "#D32F2F",
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: "#B71C1C",
     paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
   },
   logoutText: {
-    color: "#D32F2F",
-    fontWeight: "600",
+    color: "#fff",
+    fontSize: 12,
+    fontFamily: "PressStart2P",
   },
-});
+});

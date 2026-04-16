@@ -3,16 +3,18 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  TouchableOpacity, 
   SafeAreaView, 
   FlatList, 
-  Image 
+  Image,
+  Pressable
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Navbar } from "../components/Navbar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+import BrickWallPanel from "../components/BrickWallPanel";
 
-// Datos basados en los iconos de tu mockup
 const EXERCISES_DATA = [
   { id: "1", name: "Sentadilla", metric: "3x12", icon: "weight-lifter" },
   { id: "2", name: "Mancuerna", metric: "4x10", icon: "dumbbell" },
@@ -23,8 +25,14 @@ const EXERCISES_DATA = [
 
 export default function ExercisesScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
 
   const handleExercisePress = (item: typeof EXERCISES_DATA[0]) => {
+    handlePressIn();
     router.push({
       pathname: "/ejercicio-detalle",
       params: { id: item.id, name: item.name, metric: item.metric }
@@ -32,8 +40,8 @@ export default function ExercisesScreen() {
   };
 
   const renderItem = ({ item }: { item: typeof EXERCISES_DATA[0] }) => (
-    <TouchableOpacity 
-      style={styles.tableRow} 
+    <Pressable 
+      style={({ pressed }) => [styles.tableRow, pressed && { backgroundColor: '#e0e0e0' }]} 
       onPress={() => handleExercisePress(item)}
     >
       <View style={styles.iconColumn}>
@@ -45,95 +53,133 @@ export default function ExercisesScreen() {
       <View style={styles.metricColumn}>
         <Text style={styles.exerciseMetric}>{item.metric}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Ejercicios</Text>
-        <View style={{ width: 24 }} />
-      </View>
+    <View style={styles.root}>
+      {/* ── PANEL SUPERIOR ── */}
+      <BrickWallPanel rows={6}>
+        <View style={[styles.topButtons, { paddingTop: insets.top }]}>
+          <Pressable
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.btnPressed]}
+            onPressIn={handlePressIn}
+            onPress={() => router.back()}
+          >
+            <View style={styles.iconBtnInner}>
+              <Ionicons name="arrow-back" size={22} color="#fff" />
+              <Text style={styles.iconBtnLabel}>Atras</Text>
+            </View>
+          </Pressable>
 
-      {/* Contenedor de la Tabla */}
-      <View style={styles.tableContainer}>
-        <View style={styles.tableHeader}>
-          <Text style={[styles.headerLabel, { flex: 1 }]}>Icono</Text>
-          <Text style={[styles.headerLabel, { flex: 2 }]}>Ejercicio</Text>
-          <Text style={[styles.headerLabel, { flex: 1.5 }]}>Series/Dist.</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.titleBit}>Ejer</Text>
+            <Text style={styles.titleHatch}>cicio</Text>
+          </View>
+
+          <View style={{ width: 68 }} />
         </View>
+      </BrickWallPanel>
 
-        <FlatList
-          data={EXERCISES_DATA}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-        />
-        
-        {/* Silueta de la criatura que aparece a la derecha de la tabla en tu mockup */}
-        <Image 
-          source={require("../assets/egg_c.png")} 
-          style={styles.sideCreature} 
-        />
+      {/* ── PANTALLA CENTRAL (LCD Hundida) ── */}
+      <View style={styles.screen}>
+        <View style={styles.tableContainer}>
+          <View style={styles.tableHeader}>
+            <Text style={[styles.headerLabel, { flex: 1 }]}>Ico</Text>
+            <Text style={[styles.headerLabel, { flex: 2 }]}>Nombre</Text>
+            <Text style={[styles.headerLabel, { flex: 1.5 }]}>Meta</Text>
+          </View>
+
+          <FlatList
+            data={EXERCISES_DATA}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+          />
+          
+          <Image 
+            source={require("../assets/egg_c.png")} 
+            style={styles.sideCreature} 
+          />
+        </View>
       </View>
 
       <Navbar />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: "#F0F4F8",
+    backgroundColor: "#fff",
   },
-  header: {
+  /* ── Botones superiores ── */
+  topButtons: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
+  btnPressed: {
+    transform: [{ translateY: 3 }],
+    borderBottomWidth: 2,
+    marginTop: 3,
   },
-  backBtn: {
-    padding: 5,
+  iconBtn: {
+    backgroundColor: "#2E7D32", 
+    borderRadius: 14,
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: "#1B5E20", 
   },
-  tabContainer: {
+  iconBtnInner: {
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  iconBtnLabel: {
+    color: "#fff",
+    fontSize: 9,
+    marginTop: 3,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  titleRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 10,
-    gap: 10,
+    alignItems: "center",
   },
-  tab: {
-    paddingVertical: 6,
-    paddingHorizontal: 20,
-    borderRadius: 15,
-    backgroundColor: "#E0E0E0",
+  titleBit: {
+    fontSize: 22,
+    color: "#111",
+    fontFamily: "PressStart2P",
   },
-  activeTab: {
-    backgroundColor: "#4D94FF",
+  titleHatch: {
+    fontSize: 22,
+    color: "#D32F2F", // Color rojo para ejercicios
+    fontFamily: "PressStart2P",
   },
-  tabText: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#FFF",
+
+  /* ── Pantalla central ── */
+  screen: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: "#E8F5E9",
+    borderWidth: 8,
+    borderTopColor: "#78909C",
+    borderLeftColor: "#90A4AE",
+    borderRightColor: "#CFD8DC",
+    borderBottomColor: "#FFFFFF",
   },
   tableContainer: {
     flex: 1,
-    marginHorizontal: 15,
     backgroundColor: "white",
-    borderRadius: 20,
+    borderRadius: 12,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#DDD",
+    borderWidth: 3,
+    borderColor: "#90A4AE",
     position: 'relative',
   },
   tableHeader: {
@@ -141,13 +187,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F8F8",
     paddingVertical: 12,
     paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
+    borderBottomWidth: 2,
+    borderBottomColor: "#CFD8DC",
   },
   headerLabel: {
     fontWeight: "bold",
-    color: "#666",
+    color: "#333",
     fontSize: 12,
+    fontFamily: "PressStart2P", // Tipografía de juego para cabeceras
     textTransform: "uppercase",
   },
   listContent: {
@@ -171,14 +218,14 @@ const styles = StyleSheet.create({
     flex: 1.5,
   },
   exerciseName: {
-    fontSize: 15,
+    fontSize: 16,
     color: "#333",
-    fontWeight: "500",
+    fontWeight: "800",
   },
   exerciseMetric: {
-    fontSize: 14,
-    color: "#4D94FF",
-    fontWeight: "bold",
+    fontSize: 15,
+    color: "#D32F2F",
+    fontWeight: "900",
   },
   sideCreature: {
     position: 'absolute',
@@ -186,23 +233,8 @@ const styles = StyleSheet.create({
     bottom: 40,
     width: 100,
     height: 100,
-    opacity: 0.2, // Estilo marca de agua como en el mockup
+    opacity: 0.1, 
     resizeMode: 'contain',
   },
-  footer: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  actionButton: {
-    backgroundColor: "#FF4D4D", // Rojo como el botón de ejercicios
-    width: 60,
-    height: 60,
-    borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-  }
 });
+;

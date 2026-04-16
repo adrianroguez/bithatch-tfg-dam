@@ -1,65 +1,84 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useRouter, usePathname } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+import BrickWallPanel from "./BrickWallPanel";
 
-/**
- * Reusable Navbar component based on the app's footer design.
- */
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
 
   const navItems = [
-    { name: "Ejercicios", route: "/ejercicio", color: "#FF4D4D" },
-    { name: "Criatura", route: "/", color: "#4D94FF" },
-    { name: "Batalla", route: "/batalla", color: "#4CAF50" },
+    { name: "Ejercicios", route: "/ejercicio", color: "#D32F2F", icon: "barbell-outline" as const },
+    { name: "Criatura", route: "/", color: "#388E3C", icon: "sparkles-outline" as const },
+    { name: "Batalla", route: "/batalla", color: "#1976D2", icon: "flash-outline" as const },
   ];
 
   return (
-    <View style={styles.footer}>
-      {navItems.map((item) => {
-        const isActive = pathname === item.route || (item.route === "/" && pathname === "/index");
-        
-        return (
-          <TouchableOpacity
-            key={item.name}
-            style={[
-              styles.navButton,
-              { borderColor: item.color },
-              isActive && { backgroundColor: item.color + "1A" } // Subtle background for active
-            ]}
-            onPress={() => router.push(item.route as any)}
-          >
-            <Text style={[styles.navButtonText, isActive && { color: item.color }]}>
-              {item.name}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
+    <BrickWallPanel rows={6}>
+      <View style={[styles.bottomButtons, { paddingBottom: insets.bottom }]}>
+        {navItems.map((item) => {
+          const isActive = pathname === item.route || (item.route === "/" && pathname === "/index");
+
+          return (
+            <Pressable
+              key={item.name}
+              onPressIn={handlePressIn}
+              onPress={() => router.push(item.route as any)}
+              style={({ pressed }) => [
+                styles.navBtn,
+                { backgroundColor: "#fff", borderColor: item.color, borderBottomWidth: 5 },
+                pressed && styles.btnPressed,
+                isActive && { backgroundColor: `${item.color}1A` } // Sutil fondo para activo
+              ]}
+            >
+              <View style={styles.navBtnInner}>
+                <Ionicons name={item.icon} size={20} color={item.color} />
+                <Text style={[styles.navBtnText, { color: item.color }]}>{item.name}</Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+    </BrickWallPanel>
   );
 }
 
 const styles = StyleSheet.create({
-  footer: {
+  bottomButtons: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-around",
-    paddingBottom: 40,
-    paddingHorizontal: 10,
-    backgroundColor: 'white',
-  },
-  navButton: {
-    borderWidth: 2,
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    minWidth: 100,
     alignItems: "center",
-    backgroundColor: "white",
+    paddingHorizontal: 12,
   },
-  navButtonText: {
-    fontSize: 13,
-    fontWeight: "bold",
-    color: "#333",
+  navBtn: {
+    borderRadius: 45, // Circular
+    borderWidth: 2,
+    width: 90,
+    height: 90,
+    justifyContent: "center",
+  },
+  btnPressed: {
+    transform: [{ translateY: 3 }],
+    borderBottomWidth: 2,
+    marginTop: 3,
+  },
+  navBtnInner: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navBtnText: {
+    fontSize: 9,
+    fontWeight: "900",
+    marginTop: 4,
+    letterSpacing: 0,
   },
 });

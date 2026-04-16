@@ -7,16 +7,17 @@ import {
   Image, 
   StyleSheet, 
   TouchableOpacity, 
-  SafeAreaView 
+  SafeAreaView,
+  StatusBar
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
 import { Navbar } from "../components/Navbar";
+import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
-/**
- * Mapeo de tipos de huevo/criatura a sus imágenes.
- */
 const EGG_IMAGES: Record<string, any> = {
   EGG_A: require("../assets/egg_a.png"),
   EGG_B: require("../assets/egg_b.png"),
@@ -30,7 +31,6 @@ export default function Home() {
 
   useEffect(() => {
     if (authLoading || creatureLoading) return;
-
     if (!token) {
       router.replace("/login");
     } else if (!creature) {
@@ -38,53 +38,74 @@ export default function Home() {
     }
   }, [token, creature, authLoading, creatureLoading, router]);
 
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
+
   if (authLoading || creatureLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={Colors.lcd.primary} />
       </View>
     );
   }
 
   if (!token || !creature) return null;
 
-  // Intentamos obtener la imagen de la criatura, si no, usamos una por defecto
   const creatureImage = EGG_IMAGES[creature.eggType];
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       
-      {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => {/* Abrir Menú */}}>
-          <Ionicons name="grid-outline" size={28} color="black" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity onPress={() => router.push("/perfil" as any)}>
-          <View style={styles.profileCircle}>
-            <Ionicons name="person-outline" size={24} color="#666" />
+      {/* HEADER PANEL: Brick Texture */}
+      <BrickWallPanel rows={4} style={styles.headerPanel}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity onPressIn={handlePressIn} style={styles.headerBtn}>
+            <Ionicons name="grid-outline" size={24} color={Colors.lcd.text} />
+          </TouchableOpacity>
+          
+          <Text style={styles.headerTitle}>BITHATCH</Text>
+          
+          <TouchableOpacity 
+            onPressIn={handlePressIn} 
+            onPress={() => router.push("/perfil" as any)}
+            style={styles.headerBtn}
+          >
+            <Ionicons name="person-outline" size={24} color={Colors.lcd.text} />
+          </TouchableOpacity>
+        </View>
+      </BrickWallPanel>
+
+      {/* CENTRAL AREA: LCD Screen with Bezel */}
+      <View style={styles.screenWrapper}>
+        <View style={styles.screenBezel}>
+          <View style={styles.lcdScreen}>
+            {/* Talk Bubble (Floating) */}
+            <TouchableOpacity 
+              style={styles.talkBubble} 
+              onPressIn={handlePressIn}
+              onPress={() => router.push("/chat")}
+            >
+              <Text style={styles.talkText}>Chat</Text>
+            </TouchableOpacity>
+
+            <View style={styles.avatarWrapper}>
+              <Image source={creatureImage} style={styles.avatarImage} />
+              <View style={styles.nameContainer}>
+                <Text style={styles.creatureName}>{creature.name?.toUpperCase() || "EGG"}</Text>
+              </View>
+            </View>
           </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* ÁREA CENTRAL: Avatar y Burbuja "Hablar" */}
-      <View style={styles.mainContent}>
-        <TouchableOpacity style={styles.talkBubble} onPress={() => router.push("/chat")}>
-          <Text style={styles.talkText}>Hablar</Text>
-        </TouchableOpacity>
-
-        <View style={styles.avatarWrapper}>
-          <Image source={creatureImage} style={styles.avatarImage} />
-          <Text style={styles.creatureName}>{creature.name || "Criatura / Huevo"}</Text>
         </View>
       </View>
 
-      {/* FOOTER */}
+      {/* FOOTER: Already handled by Navbar (BrickWallPanel inside) */}
       <Navbar />
 
-      {/* PROVICIONAL Botón de Logout */}
+      {/* Logout hidden small at bottom */}
       <TouchableOpacity style={styles.logoutBtn} onPress={() => void logout()}>
-        <Text style={{color: 'gray', fontSize: 10}}>Cerrar Sesión</Text>
+        <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
 
     </SafeAreaView>
@@ -94,82 +115,115 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.structure.mortar,
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: Colors.lcd.background,
   },
-  header: {
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+  },
+  headerContent: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 15,
+    paddingHorizontal: Spacing.md,
   },
-  profileCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+  headerTitle: {
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
+    letterSpacing: 1,
+  },
+  headerBtn: {
+    width: 44,
+    height: 44,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: 4,
     justifyContent: "center",
     alignItems: "center",
   },
-  mainContent: {
+  screenWrapper: {
     flex: 1,
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
+    borderWidth: 8,
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
+    elevation: 10,
+  },
+  lcdScreen: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
     alignItems: "center",
     justifyContent: "center",
+    padding: Spacing.md,
   },
   talkBubble: {
-    borderWidth: 1.5,
-    borderColor: "#FFA500",
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-    marginBottom: 30,
+    position: "absolute",
+    top: 20,
+    right: 20,
+    backgroundColor: Colors.lcd.accent,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: 4,
   },
   talkText: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.lcd.text,
   },
   avatarWrapper: {
     alignItems: "center",
   },
   avatarImage: {
-    width: 180,
-    height: 180,
+    width: 200,
+    height: 200,
     resizeMode: "contain",
   },
-  creatureName: {
+  nameContainer: {
     marginTop: 20,
-    fontSize: 18,
-    color: "#333",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
   },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingBottom: 40,
-    paddingHorizontal: 10,
-  },
-  navButton: {
-    borderWidth: 2,
-    borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    minWidth: 100,
-    alignItems: "center",
-    backgroundColor: "white",
-  },
-  navButtonText: {
-    fontSize: 13,
-    fontWeight: "bold",
-    color: "#333",
+  creatureName: {
+    fontFamily: Typography.retro,
+    fontSize: 12,
+    color: Colors.lcd.text,
+    textAlign: "center",
   },
   logoutBtn: {
     position: 'absolute',
     bottom: 5,
-    alignSelf: 'center'
+    alignSelf: 'center',
+    opacity: 0.5,
+  },
+  logoutText: {
+    fontFamily: Typography.retro,
+    fontSize: 6,
+    color: "gray",
   }
-});
+});

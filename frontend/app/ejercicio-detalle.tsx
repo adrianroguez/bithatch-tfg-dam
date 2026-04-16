@@ -4,10 +4,10 @@ import {
   Text, 
   StyleSheet, 
   Pressable, 
-  SafeAreaView, 
   Image,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +16,7 @@ import { useCreature } from "../context/CreatureContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
 export default function EjercicioDetalleScreen() {
   const router = useRouter();
@@ -53,8 +54,10 @@ export default function EjercicioDetalleScreen() {
 
   return (
     <View style={styles.root}>
-      {/* ── PANEL SUPERIOR ── */}
-      <BrickWallPanel rows={6}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* HEADER PANEL */}
+      <BrickWallPanel rows={6} style={styles.headerPanel}>
         <View style={[styles.topButtons, { paddingTop: insets.top }]}>
           <Pressable
             style={({ pressed }) => [styles.iconBtn, pressed && styles.btnPressed]}
@@ -62,48 +65,55 @@ export default function EjercicioDetalleScreen() {
             onPress={() => router.back()}
           >
             <View style={styles.iconBtnInner}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-              <Text style={styles.iconBtnLabel}>Atras</Text>
+              <Ionicons name="arrow-back" size={20} color={Colors.buttons.text} />
+              <Text style={styles.iconBtnLabel}>ATRAS</Text>
             </View>
           </Pressable>
 
           <View style={styles.titleRow}>
-            <Text style={styles.titleBit}>Deta</Text>
-            <Text style={styles.titleHatch}>lle</Text>
+            <Text style={styles.titleText}>DETALLE</Text>
           </View>
 
           <Pressable
-            style={({ pressed }) => [styles.iconBtn, {backgroundColor: '#FFEB3B', borderColor: '#FBC02D'}, pressed && styles.btnPressed]}
+            style={({ pressed }) => [
+              styles.iconBtn, 
+              { backgroundColor: Colors.buttons.yellow }, 
+              pressed && styles.btnPressed
+            ]}
             onPressIn={handlePressIn}
             onPress={() => setShowFinishModal(true)}
           >
             <View style={styles.iconBtnInner}>
-              <Ionicons name="checkmark-circle-outline" size={22} color="#F57F17" />
-              <Text style={[styles.iconBtnLabel, {color: '#F57F17'}]}>Fin</Text>
+              <Ionicons name="checkmark-circle-outline" size={20} color={Colors.lcd.text} />
+              <Text style={[styles.iconBtnLabel, {color: Colors.lcd.text}]}>FIN</Text>
             </View>
           </Pressable>
         </View>
       </BrickWallPanel>
 
-      {/* ── PANTALLA CENTRAL (LCD Hundida) ── */}
-      <View style={styles.screen}>
-        <View style={styles.content}>
-          <Text style={styles.exerciseTitle}>{`<${name || "Ejercicio"}>`}</Text>
-          
-          <View style={styles.avatarContainer}>
-            <Image 
-              source={require("../assets/egg_c.png")} 
-              style={styles.avatar} 
-            />
-            <Text style={styles.metricText}>{metric}</Text>
-          </View>
-
-          <View style={styles.progressArea}>
-            <Text style={styles.progressLabel}>{"<Progreso>"}</Text>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: "65%" }]} />
+      {/* LCD SCREEN */}
+      <View style={styles.screenWrapper}>
+        <View style={styles.screenBezel}>
+          <View style={styles.lcdContent}>
+            <Text style={styles.exerciseTitle}>{name?.toUpperCase() || "EJERCICIO"}</Text>
+            
+            <View style={styles.avatarContainer}>
+              <Image 
+                source={require("../assets/egg_c.png")} 
+                style={styles.avatar} 
+              />
+              <View style={styles.metricBadge}>
+                <Text style={styles.metricText}>{metric}</Text>
+              </View>
             </View>
-            <Text style={styles.percentageText}>65% completado</Text>
+
+            <View style={styles.progressArea}>
+              <Text style={styles.progressLabel}>PROGRESO</Text>
+              <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarFill, { width: "65%" }]} />
+              </View>
+              <Text style={styles.percentageText}>65% COMPLETADO</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -117,7 +127,7 @@ export default function EjercicioDetalleScreen() {
             {resultExp === null ? (
               <>
                 <Text style={styles.modalTitle}>FINALIZAR</Text>
-                <Text style={styles.modalSub}>¿Cómo lo has hecho?</Text>
+                <Text style={styles.modalSub}>¿CÓMO LO HAS HECHO?</Text>
                 
                 <View style={styles.optionButtons}>
                   <Pressable 
@@ -126,27 +136,31 @@ export default function EjercicioDetalleScreen() {
                     disabled={loading}
                     onPressIn={handlePressIn}
                   >
-                    <Text style={styles.optionBtnText}>Parcial</Text>
+                    <Text style={styles.optionBtnText}>PARCIAL</Text>
                   </Pressable>
                   
                   <Pressable 
-                    style={({pressed}) => [styles.optionBtn, { backgroundColor: "#388E3C", borderColor: "#1B5E20" }, pressed && styles.btnPressed]} 
+                    style={({pressed}) => [
+                      styles.optionBtn, 
+                      { backgroundColor: Colors.buttons.green }, 
+                      pressed && styles.btnPressed
+                    ]} 
                     onPress={() => handleFinish("Total")}
                     disabled={loading}
                     onPressIn={handlePressIn}
                   >
-                    <Text style={styles.optionBtnText}>Total</Text>
+                    <Text style={styles.optionBtnText}>TOTAL</Text>
                   </Pressable>
                 </View>
                 
-                {loading && <ActivityIndicator style={{ marginTop: 20 }} color="#2E7D32" />}
+                {loading && <ActivityIndicator style={{ marginTop: 20 }} color={Colors.lcd.primary} />}
               </>
             ) : (
               <View style={styles.resultContainer}>
-                <Ionicons name="checkmark-circle" size={60} color="#388E3C" />
-                <Text style={styles.resultTitle}>FINALIZADO</Text>
+                <Ionicons name="checkmark-circle" size={60} color={Colors.lcd.primary} />
+                <Text style={styles.resultTitle}>¡COMPLETADO!</Text>
                 <Text style={styles.expText}>
-                  {`Exp: +${resultExp}`}
+                  {`EXP: +${resultExp}`}
                 </Text>
                 <Pressable 
                   style={({pressed}) => [styles.closeBtn, pressed && styles.btnPressed]} 
@@ -167,212 +181,221 @@ export default function EjercicioDetalleScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.structure.mortar,
+  },
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   topButtons: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  btnPressed: {
-    transform: [{ translateY: 3 }],
-    borderBottomWidth: 2,
-    marginTop: 3,
+    paddingHorizontal: Spacing.md,
   },
   iconBtn: {
-    backgroundColor: "#2E7D32", 
-    borderRadius: 14,
+    backgroundColor: Colors.buttons.green, 
+    borderRadius: 8,
     borderWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#1B5E20", 
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: Shadows.button.borderBottomWidth,
+  },
+  btnPressed: {
+    transform: [{ translateY: Shadows.button.pressedTransform }],
+    borderBottomWidth: 2,
+    marginTop: Shadows.button.pressedTransform,
   },
   iconBtnInner: {
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    minWidth: 50,
   },
   iconBtnLabel: {
-    color: "#fff",
-    fontSize: 9,
-    marginTop: 3,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    fontFamily: Typography.retro,
+    color: Colors.buttons.text,
+    fontSize: 6,
+    marginTop: 4,
   },
   titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
   },
-  titleBit: {
-    fontSize: 22,
-    color: "#111",
-    fontFamily: "PressStart2P",
+  titleText: {
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
   },
-  titleHatch: {
-    fontSize: 22,
-    color: "#D32F2F", // Ejercicio rojo
-    fontFamily: "PressStart2P",
-  },
-  screen: {
+  screenWrapper: {
     flex: 1,
-    paddingHorizontal: 10,
-    backgroundColor: "#E8F5E9",
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
     borderWidth: 8,
-    borderTopColor: "#78909C",
-    borderLeftColor: "#90A4AE",
-    borderRightColor: "#CFD8DC",
-    borderBottomColor: "#FFFFFF",
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
   },
-  content: {
+  lcdContent: {
     flex: 1,
+    backgroundColor: Colors.lcd.background,
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: 30,
+    paddingHorizontal: Spacing.md,
   },
   exerciseTitle: {
-    fontSize: 20,
-    color: "#333",
-    fontFamily: "PressStart2P",
-    marginBottom: 40,
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
+    marginBottom: 30,
     textAlign: "center",
   },
   avatarContainer: {
     alignItems: "center",
-    marginBottom: 50,
+    marginBottom: 40,
   },
   avatar: {
-    width: 180,
-    height: 180,
+    width: 160,
+    height: 160,
     resizeMode: "contain",
   },
+  metricBadge: {
+    marginTop: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
+    borderRadius: 4,
+  },
   metricText: {
-    fontSize: 18,
-    color: "#D32F2F",
-    marginTop: 10,
-    fontWeight: "900",
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    fontSize: 10,
+    color: Colors.buttons.red,
   },
   progressArea: {
-    width: "80%",
+    width: "100%",
     alignItems: "center",
   },
   progressLabel: {
-    fontSize: 12,
-    color: "#388E3C",
-    marginBottom: 15,
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.lcd.primary,
+    marginBottom: 12,
   },
   progressBarBg: {
     width: "100%",
-    height: 20,
-    backgroundColor: "#CFD8DC",
+    height: 16,
+    backgroundColor: "rgba(0,0,0,0.05)",
     borderWidth: 2,
-    borderColor: "#90A4AE",
-    borderRadius: 4,
+    borderColor: Colors.lcd.text,
+    borderRadius: 2,
     overflow: "hidden",
     marginBottom: 8,
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#4CAF50",
+    backgroundColor: Colors.lcd.primary,
     borderRightWidth: 2,
-    borderColor: "#388E3C",
+    borderColor: "rgba(0,0,0,0.1)",
   },
   percentageText: {
-    fontSize: 10,
-    color: "#555",
-    fontFamily: "PressStart2P",
-    marginTop: 5,
+    fontFamily: Typography.retro,
+    fontSize: 7,
+    color: "gray",
+    marginTop: 4,
   },
-  // Modal Styles (Retro themed)
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
     width: "85%",
-    backgroundColor: "#F1F8E9",
+    backgroundColor: Colors.lcd.background,
     borderWidth: 6,
-    borderColor: "#A5D6A7",
+    borderColor: Colors.lcd.primary,
     borderRadius: 16,
-    padding: 25,
+    padding: 24,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 10,
   },
   modalTitle: {
-    fontSize: 16,
-    color: "#2E7D32",
-    marginBottom: 15,
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.primary,
+    marginBottom: 12,
   },
   modalSub: {
-    fontSize: 12,
-    color: "#444",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: "gray",
     textAlign: "center",
-    marginBottom: 30,
-    fontWeight: "bold",
+    marginBottom: 24,
   },
   optionButtons: {
     flexDirection: "row",
-    gap: 15,
+    gap: 16,
     width: "100%",
     justifyContent: "center",
   },
   optionBtn: {
-    backgroundColor: "#F57C00",
+    backgroundColor: Colors.buttons.blue,
     borderWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#E65100",
+    borderBottomWidth: Shadows.button.borderBottomWidth,
+    borderColor: Colors.lcd.text,
     paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     minWidth: 100,
     alignItems: "center",
   },
   optionBtnText: {
+    fontFamily: Typography.retro,
     color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-    fontFamily: "PressStart2P",
+    fontSize: 8,
   },
   resultContainer: {
     alignItems: "center",
     width: "100%",
   },
   resultTitle: {
-    fontSize: 16,
-    color: "#388E3C",
-    marginTop: 15,
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    fontSize: 12,
+    color: Colors.lcd.primary,
+    marginTop: 16,
   },
   expText: {
-    fontSize: 14,
-    color: "#333",
-    marginTop: 15,
-    marginBottom: 30,
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    fontSize: 10,
+    color: Colors.lcd.text,
+    marginTop: 12,
+    marginBottom: 24,
   },
   closeBtn: {
-    backgroundColor: "#1976D2",
+    backgroundColor: Colors.buttons.green,
     borderWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#0D47A1",
+    borderBottomWidth: Shadows.button.borderBottomWidth,
+    borderColor: Colors.lcd.text,
     paddingVertical: 12,
     width: "100%",
-    borderRadius: 12,
+    borderRadius: 8,
     alignItems: "center",
   },
   closeBtnText: {
+    fontFamily: Typography.retro,
     color: "white",
-    fontSize: 12,
-    fontFamily: "PressStart2P",
+    fontSize: 10,
   }
 });
-
-

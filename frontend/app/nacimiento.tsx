@@ -4,15 +4,19 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   Image,
   ActivityIndicator,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
+  TouchableOpacity
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { useCreature } from "../context/CreatureContext";
+import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
 const EGG_IMAGES: Record<string, any> = {
   EGG_A: require("../assets/egg_a.png"),
@@ -29,9 +33,14 @@ export default function NacimientoScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
+
   const handleContinue = async () => {
+    handlePressIn();
     if (!name.trim()) {
-      setError("Por favor, ingresa un nombre");
+      setError("INGRESA UN NOMBRE");
       return;
     }
 
@@ -39,15 +48,14 @@ export default function NacimientoScreen() {
     setError("");
 
     try {
-      const res = await createStarter(name, eggType || "EGG_A");
+      const res = await createStarter(name.toUpperCase(), eggType || "EGG_A");
       if (res.ok) {
-        // Navegar a home tras éxito
         router.replace("/");
       } else {
-        setError(res.msg || "Error al crear la criatura");
+        setError(res.msg?.toUpperCase() || "ERROR");
       }
     } catch (err) {
-      setError("Error de conexión");
+      setError("ERROR DE CONEXIÓN");
     } finally {
       setLoading(false);
     }
@@ -56,114 +64,162 @@ export default function NacimientoScreen() {
   const eggImage = EGG_IMAGES[eggType || "EGG_A"];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.root}>
+      <StatusBar barStyle="dark-content" />
+      
+      <BrickWallPanel rows={20} style={StyleSheet.absoluteFillObject} />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.flex}
+        style={styles.container}
       >
-        <View style={styles.content}>
-          <Image source={eggImage} style={styles.eggImage} />
-          
-          <Text style={styles.title}>-Nacimiento-</Text>
-          
-          <View style={styles.inputArea}>
-            <Text style={styles.label}>Ponle un nombre a tu criatura:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre..."
-              value={name}
-              onChangeText={setName}
-              autoFocus
-            />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          </View>
+        <View style={styles.screenBezel}>
+          <View style={styles.lcdContent}>
+            
+            <View style={styles.logoContainer}>
+              <Text style={styles.logoText}>NACIMIENTO</Text>
+            </View>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleContinue}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.buttonText}>Continuar</Text>
-            )}
-          </TouchableOpacity>
+            <View style={styles.avatarSection}>
+              <Image source={eggImage} style={styles.eggImage} />
+            </View>
+
+            <View style={styles.form}>
+              <Text style={styles.label}>PONLE UN NOMBRE:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="NOMBRE..."
+                placeholderTextColor="rgba(0,0,0,0.3)"
+                value={name}
+                onChangeText={setName}
+                autoFocus
+                autoCapitalize="characters"
+              />
+              {error ? (
+                <View style={styles.errorBox}>
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            <Pressable
+              style={({pressed}) => [styles.primaryBtn, pressed && styles.btnPressed, loading && styles.buttonDisabled]}
+              onPressIn={handlePressIn}
+              onPress={handleContinue}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.primaryBtnText}>CONTINUAR</Text>
+              )}
+            </Pressable>
+
+          </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.structure.mortar,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  flex: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 30,
+    padding: Spacing.lg,
   },
-  eggImage: {
-    width: 180,
-    height: 180,
-    resizeMode: "contain",
+  screenBezel: {
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
+    borderWidth: 10,
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
+    elevation: 20,
+  },
+  lcdContent: {
+    padding: Spacing.xl,
+    alignItems: "center",
+  },
+  logoContainer: {
     marginBottom: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 40,
-    color: "#333",
+  logoText: {
+    fontFamily: Typography.retro,
+    fontSize: 16,
+    color: Colors.lcd.text,
   },
-  inputArea: {
+  avatarSection: {
+    marginBottom: 30,
+  },
+  eggImage: {
+    width: 140,
+    height: 140,
+    resizeMode: "contain",
+  },
+  form: {
     width: "100%",
     marginBottom: 30,
   },
   label: {
-    fontSize: 14,
-    color: "#666",
+    fontFamily: Typography.retro,
+    fontSize: 7,
+    color: Colors.lcd.primary,
     marginBottom: 10,
     textAlign: "center",
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#DDD",
-    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderRadius: 4,
+    paddingHorizontal: 12,
     paddingVertical: 12,
-    paddingHorizontal: 15,
-    fontSize: 16,
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    backgroundColor: "rgba(0,0,0,0.03)",
     textAlign: "center",
-    backgroundColor: "#F9F9F9",
+  },
+  errorBox: {
+    marginTop: 10,
+    padding: 6,
+    backgroundColor: "rgba(211, 47, 47, 0.1)",
+    borderWidth: 1,
+    borderColor: Colors.buttons.red,
+    borderRadius: 4,
   },
   errorText: {
-    color: "#FF4D4D",
-    fontSize: 12,
-    marginTop: 5,
+    fontFamily: Typography.retro,
+    fontSize: 6,
+    color: Colors.buttons.red,
     textAlign: "center",
   },
-  button: {
-    backgroundColor: "#4D94FF",
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 25,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+  primaryBtn: {
+    backgroundColor: Colors.buttons.green,
+    paddingVertical: 16,
+    width: "100%",
+    borderRadius: 8,
+    borderWidth: 2,
+    borderBottomWidth: 6,
+    borderColor: Colors.lcd.text,
+    alignItems: "center",
   },
   buttonDisabled: {
-    backgroundColor: "#A0C4FF",
+    opacity: 0.7,
   },
-  buttonText: {
+  btnPressed: {
+    transform: [{ translateY: Shadows.button.pressedTransform }],
+    borderBottomWidth: 2,
+    marginTop: Shadows.button.pressedTransform,
+  },
+  primaryBtnText: {
+    fontFamily: Typography.retro,
     color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 10,
   },
 });

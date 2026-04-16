@@ -1,20 +1,12 @@
 import React from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
+import { Colors } from "../constants/theme";
 
 /**
  * Panel decorativo con textura de muro de ladrillos.
- * Los hijos se superponen sobre el muro mediante posicionamiento absoluto,
- * de modo que el muro actúa como fondo opaco del contenedor.
- *
- * Uso:
- *   <BrickWallPanel style={estilos.miPanel}>
- *     <MisBotonjes />
- *   </BrickWallPanel>
  */
 
 /* ── Constantes de ladrillo ────────────────────────────────────────── */
-const BRICK_COLOR = "#D4DCD8";      // Gris salvia muy suave (da un toque de color sin deslumbrar)
-const MORTAR_COLOR = "#A3B0AA";     // Tono más oscuro para el hundimiento de las juntas
 const BRICK_WIDTH = 70;
 const BRICK_HEIGHT = 24;
 const MORTAR = 3;                   // Grosor de la junta
@@ -66,9 +58,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   wallBackground: {
-    backgroundColor: MORTAR_COLOR,  // Color de las juntas (mortero)
+    backgroundColor: Colors.structure.mortar,  // Color de las juntas (mortero)
     justifyContent: "flex-start",
-    // padding inicial (el final lo da el margin de los ladrillos)
     paddingTop: MORTAR,
     paddingLeft: MORTAR,
   },
@@ -78,28 +69,27 @@ const styles = StyleSheet.create({
   brick: {
     width: BRICK_WIDTH,
     height: BRICK_HEIGHT,
-    backgroundColor: BRICK_COLOR,
-    // En lugar de margen a ambos lados, solo agregamos margen de separación a la derecha y abajo
+    backgroundColor: Colors.structure.brick,
     marginRight: MORTAR,
     marginBottom: MORTAR,
-    borderRadius: 3, // Ladrillo un poco más redondeado (estilo plástico moldeado)
+    borderRadius: 3, 
     // Efecto bisel / relieve 3D pronunciado
     borderTopWidth: 2,
     borderLeftWidth: 1.5,
-    borderTopColor: "rgba(255,255,255,0.7)",
+    borderTopColor: Colors.structure.highlight,
     borderLeftColor: "rgba(255,255,255,0.4)",
     borderBottomWidth: 2,
     borderRightWidth: 1.5,
-    borderBottomColor: "rgba(0,0,0,0.25)",
+    borderBottomColor: Colors.structure.shadow,
     borderRightColor: "rgba(0,0,0,0.15)",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.03)", // Apenas percertible para no oscurecer el texto
+    backgroundColor: Colors.structure.overlay,
   },
   content: {
-    // Elevamos el zIndex para que los toques siempre vayan aquí y no queden bloqueados por nada del fondo absoluto
     ...StyleSheet.absoluteFillObject,
     zIndex: 1, 
   },
 });
+

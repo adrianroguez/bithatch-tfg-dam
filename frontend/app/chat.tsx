@@ -9,18 +9,21 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  Image
+  Image,
+  StatusBar
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { AuthContext } from "../context/AuthContext";
+import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
-// Datos de ejemplo para la conversación
 const INITIAL_MESSAGES = [
-  { id: "1", text: "Hola, ¿cómo estás hoy?", sender: "creature" },
-  { id: "2", text: "¡Listo para entrenar!", sender: "user" },
-  { id: "3", text: "¿Qué rutina haremos?", sender: "user" },
-  { id: "4", text: "Hoy toca pierna. ¡Vamos!", sender: "creature" },
+  { id: "1", text: "HOLA, ¿CÓMO ESTÁS HOY?", sender: "creature" },
+  { id: "2", text: "¡LISTO PARA ENTRENAR!", sender: "user" },
+  { id: "3", text: "¿QUÉ RUTINA HAREMOS?", sender: "user" },
+  { id: "4", text: "HOY TOCA PIERNA. ¡VAMOS!", sender: "creature" },
 ];
 
 export default function ChatScreen() {
@@ -28,12 +31,17 @@ export default function ChatScreen() {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState(INITIAL_MESSAGES);
 
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
+
   const sendMessage = () => {
     if (message.trim().length === 0) return;
+    handlePressIn();
     
     const newMessage = {
       id: Date.now().toString(),
-      text: message,
+      text: message.toUpperCase(),
       sender: "user",
     };
     
@@ -55,90 +63,139 @@ export default function ChatScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header del Chat */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Conversa con tu Criatura</Text>
-          <Ionicons name="people-outline" size={20} color="#666" />
+    <View style={styles.root}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* HEADER PANEL */}
+      <BrickWallPanel rows={4} style={styles.headerPanel}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity 
+            onPressIn={handlePressIn} 
+            onPress={() => router.back()}
+            style={styles.headerBtn}
+          >
+            <Ionicons name="arrow-back" size={20} color={Colors.lcd.text} />
+          </TouchableOpacity>
+          
+          <Text style={styles.headerTitle}>CHAT</Text>
+          
+          <View style={{ width: 44 }} />
         </View>
-        <View style={{ width: 24 }} />
-      </View>
+      </BrickWallPanel>
 
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={90}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <FlatList
-          data={chatHistory}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.chatList}
-        />
+        {/* LCD SCREEN */}
+        <View style={styles.screenWrapper}>
+          <View style={styles.screenBezel}>
+            <View style={styles.lcdContent}>
+              <FlatList
+                data={chatHistory}
+                renderItem={renderMessage}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.chatList}
+                showsVerticalScrollIndicator={false}
+              />
 
-        {/* Silueta de la criatura hablando */}
-        <View style={styles.creatureAvatarContainer}>
-           <Image 
-             source={require("../assets/egg_c.png")} 
-             style={styles.creatureChatImage} 
-           />
-           <View style={styles.typingIndicator}>
-             <Text style={styles.typingText}>La Criatura está escuchando...</Text>
-           </View>
+              {/* Status Indicator */}
+              <View style={styles.creatureAvatarContainer}>
+                 <Image 
+                   source={require("../assets/egg_c.png")} 
+                   style={styles.creatureChatImage} 
+                 />
+                 <View style={styles.typingIndicator}>
+                   <Text style={styles.typingText}>ESCUCHANDO...</Text>
+                 </View>
+              </View>
+            </View>
+          </View>
         </View>
 
-        {/* Input de Texto */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Escribe aquí..."
-            value={message}
-            onChangeText={setMessage}
-            multiline
-          />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-            <Ionicons name="send" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+        {/* INPUT AREA: Brick background */}
+        <BrickWallPanel rows={8} style={styles.inputPanel}>
+          <View style={styles.inputContent}>
+            <TextInput
+              style={styles.input}
+              placeholder="MENSAJE..."
+              placeholderTextColor="rgba(0,0,0,0.3)"
+              value={message}
+              onChangeText={setMessage}
+              multiline
+            />
+            <TouchableOpacity 
+              style={styles.sendButton} 
+              onPressIn={handlePressIn}
+              onPress={sendMessage}
+            >
+              <Ionicons name="send" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        </BrickWallPanel>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: "#F5F7FA",
+    backgroundColor: Colors.structure.mortar,
   },
-  header: {
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+  },
+  headerContent: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
-  },
-  headerTitleContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    paddingHorizontal: Spacing.md,
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
+  },
+  headerBtn: {
+    width: 44,
+    height: 44,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  screenWrapper: {
+    flex: 1,
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
+    borderWidth: 8,
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
+  },
+  lcdContent: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
   },
   chatList: {
     padding: 15,
-    paddingBottom: 20,
   },
   messageWrapper: {
-    marginVertical: 5,
+    marginVertical: 4,
     flexDirection: "row",
     width: "100%",
   },
@@ -149,73 +206,88 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   bubble: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 18,
-    maxWidth: "80%",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 4,
+    borderWidth: 2,
+    maxWidth: "85%",
   },
   userBubble: {
-    backgroundColor: "#4D94FF", 
-    borderBottomRightRadius: 2,
+    backgroundColor: Colors.buttons.blue, 
+    borderColor: "rgba(0,0,0,0.1)",
+    borderBottomRightRadius: 0,
   },
   creatureBubble: {
-    backgroundColor: "#FF6B6B",
-    borderBottomLeftRadius: 2,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    borderColor: "rgba(0,0,0,0.1)",
+    borderBottomLeftRadius: 0,
   },
   messageText: {
-    fontSize: 15,
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    lineHeight: 14,
   },
   userText: {
     color: "white",
   },
   creatureText: {
-    color: "white",
+    color: Colors.lcd.text,
   },
   creatureAvatarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(255,255,255,0.7)'
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
+    backgroundColor: "rgba(255,255,255,0.5)",
   },
   creatureChatImage: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     resizeMode: 'contain',
+    opacity: 0.8,
   },
   typingIndicator: {
-    marginLeft: 10,
-    backgroundColor: '#EEE',
-    padding: 8,
-    borderRadius: 10,
+    marginLeft: 12,
   },
   typingText: {
-    fontSize: 12,
-    color: '#888',
-    fontStyle: 'italic'
+    fontFamily: Typography.retro,
+    fontSize: 6,
+    color: Colors.lcd.text,
+    opacity: 0.5,
   },
-  inputContainer: {
+  inputPanel: {
+    borderTopWidth: 3,
+    borderTopColor: "rgba(0,0,0,0.1)",
+  },
+  inputContent: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
-    padding: 15,
-    backgroundColor: "white",
+    padding: 12,
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#EEE",
   },
   input: {
     flex: 1,
-    backgroundColor: "#F0F0F0",
-    borderRadius: 20,
-    paddingHorizontal: 15,
+    backgroundColor: "white",
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     marginRight: 10,
-    maxHeight: 100,
+    maxHeight: 60,
   },
   sendButton: {
-    backgroundColor: "#4D94FF",
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
+    backgroundColor: Colors.buttons.green,
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: 4,
     justifyContent: "center",
     alignItems: "center",
   },

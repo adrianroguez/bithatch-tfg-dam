@@ -3,10 +3,10 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  SafeAreaView, 
   FlatList, 
   Image,
-  Pressable
+  Pressable,
+  StatusBar
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -14,6 +14,7 @@ import { Navbar } from "../components/Navbar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
 const EXERCISES_DATA = [
   { id: "1", name: "Sentadilla", metric: "3x12", icon: "weight-lifter" },
@@ -41,11 +42,14 @@ export default function ExercisesScreen() {
 
   const renderItem = ({ item }: { item: typeof EXERCISES_DATA[0] }) => (
     <Pressable 
-      style={({ pressed }) => [styles.tableRow, pressed && { backgroundColor: '#e0e0e0' }]} 
+      style={({ pressed }) => [
+        styles.tableRow, 
+        pressed && { backgroundColor: 'rgba(0,0,0,0.05)' }
+      ]} 
       onPress={() => handleExercisePress(item)}
     >
       <View style={styles.iconColumn}>
-        <MaterialCommunityIcons name={item.icon as any} size={24} color="#555" />
+        <MaterialCommunityIcons name={item.icon as any} size={24} color={Colors.lcd.text} />
       </View>
       <View style={styles.nameColumn}>
         <Text style={styles.exerciseName}>{item.name}</Text>
@@ -58,8 +62,10 @@ export default function ExercisesScreen() {
 
   return (
     <View style={styles.root}>
-      {/* ── PANEL SUPERIOR ── */}
-      <BrickWallPanel rows={6}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* HEADER PANEL */}
+      <BrickWallPanel rows={6} style={styles.headerPanel}>
         <View style={[styles.topButtons, { paddingTop: insets.top }]}>
           <Pressable
             style={({ pressed }) => [styles.iconBtn, pressed && styles.btnPressed]}
@@ -67,40 +73,42 @@ export default function ExercisesScreen() {
             onPress={() => router.back()}
           >
             <View style={styles.iconBtnInner}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-              <Text style={styles.iconBtnLabel}>Atras</Text>
+              <Ionicons name="arrow-back" size={20} color={Colors.buttons.text} />
+              <Text style={styles.iconBtnLabel}>ATRAS</Text>
             </View>
           </Pressable>
 
           <View style={styles.titleRow}>
-            <Text style={styles.titleBit}>Ejer</Text>
-            <Text style={styles.titleHatch}>cicio</Text>
+            <Text style={styles.titleText}>BIT<Text style={{color: Colors.buttons.red}}>HATCH</Text></Text>
           </View>
 
           <View style={{ width: 68 }} />
         </View>
       </BrickWallPanel>
 
-      {/* ── PANTALLA CENTRAL (LCD Hundida) ── */}
-      <View style={styles.screen}>
-        <View style={styles.tableContainer}>
-          <View style={styles.tableHeader}>
-            <Text style={[styles.headerLabel, { flex: 1 }]}>Ico</Text>
-            <Text style={[styles.headerLabel, { flex: 2 }]}>Nombre</Text>
-            <Text style={[styles.headerLabel, { flex: 1.5 }]}>Meta</Text>
-          </View>
+      {/* LCD SCREEN */}
+      <View style={styles.screenWrapper}>
+        <View style={styles.screenBezel}>
+          <View style={styles.lcdContent}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.headerLabel, { flex: 1 }]}>ICO</Text>
+              <Text style={[styles.headerLabel, { flex: 2 }]}>NOMB</Text>
+              <Text style={[styles.headerLabel, { flex: 1.5 }]}>META</Text>
+            </View>
 
-          <FlatList
-            data={EXERCISES_DATA}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContent}
-          />
-          
-          <Image 
-            source={require("../assets/egg_c.png")} 
-            style={styles.sideCreature} 
-          />
+            <FlatList
+              data={EXERCISES_DATA}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContent}
+              showsVerticalScrollIndicator={false}
+            />
+            
+            <Image 
+              source={require("../assets/egg_c.png")} 
+              style={styles.sideCreature} 
+            />
+          </View>
         </View>
       </View>
 
@@ -112,90 +120,87 @@ export default function ExercisesScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.structure.mortar,
   },
-  /* ── Botones superiores ── */
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+  },
   topButtons: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  btnPressed: {
-    transform: [{ translateY: 3 }],
-    borderBottomWidth: 2,
-    marginTop: 3,
+    paddingHorizontal: Spacing.md,
   },
   iconBtn: {
-    backgroundColor: "#2E7D32", 
-    borderRadius: 14,
+    backgroundColor: Colors.buttons.green, 
+    borderRadius: 8,
     borderWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#1B5E20", 
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: Shadows.button.borderBottomWidth,
+  },
+  btnPressed: {
+    transform: [{ translateY: Shadows.button.pressedTransform }],
+    borderBottomWidth: 2,
+    marginTop: Shadows.button.pressedTransform,
   },
   iconBtnInner: {
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   iconBtnLabel: {
-    color: "#fff",
-    fontSize: 9,
-    marginTop: 3,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    fontFamily: Typography.retro,
+    color: Colors.buttons.text,
+    fontSize: 6,
+    marginTop: 4,
   },
   titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
   },
-  titleBit: {
-    fontSize: 22,
-    color: "#111",
-    fontFamily: "PressStart2P",
+  titleText: {
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
   },
-  titleHatch: {
-    fontSize: 22,
-    color: "#D32F2F", // Color rojo para ejercicios
-    fontFamily: "PressStart2P",
-  },
-
-  /* ── Pantalla central ── */
-  screen: {
+  screenWrapper: {
     flex: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: "#E8F5E9",
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
     borderWidth: 8,
-    borderTopColor: "#78909C",
-    borderLeftColor: "#90A4AE",
-    borderRightColor: "#CFD8DC",
-    borderBottomColor: "#FFFFFF",
-  },
-  tableContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: 12,
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
     overflow: "hidden",
-    borderWidth: 3,
-    borderColor: "#90A4AE",
-    position: 'relative',
+  },
+  lcdContent: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "rgba(0,0,0,0.05)",
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderBottomWidth: 2,
-    borderBottomColor: "#CFD8DC",
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   headerLabel: {
-    fontWeight: "bold",
-    color: "#333",
-    fontSize: 12,
-    fontFamily: "PressStart2P", // Tipografía de juego para cabeceras
-    textTransform: "uppercase",
+    fontFamily: Typography.retro,
+    color: Colors.lcd.text,
+    fontSize: 8,
   },
   listContent: {
     paddingBottom: 20,
@@ -206,7 +211,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: "rgba(0,0,0,0.05)",
   },
   iconColumn: {
     flex: 1,
@@ -218,23 +223,23 @@ const styles = StyleSheet.create({
     flex: 1.5,
   },
   exerciseName: {
-    fontSize: 16,
-    color: "#333",
-    fontWeight: "800",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.lcd.text,
   },
   exerciseMetric: {
-    fontSize: 15,
-    color: "#D32F2F",
-    fontWeight: "900",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.buttons.red,
   },
   sideCreature: {
     position: 'absolute',
     right: -20,
-    bottom: 40,
-    width: 100,
-    height: 100,
-    opacity: 0.1, 
+    bottom: -10,
+    width: 80,
+    height: 80,
+    opacity: 0.05, 
     resizeMode: 'contain',
   },
 });
-;
+

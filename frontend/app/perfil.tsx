@@ -6,15 +6,17 @@ import {
   StyleSheet, 
   Pressable, 
   Image,
-  ScrollView 
+  ScrollView,
+  StatusBar
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { AuthContext } from "../context/AuthContext";
 import { useCreature } from "../context/CreatureContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Haptics from "expo-haptics";
 import BrickWallPanel from "../components/BrickWallPanel";
 import { Navbar } from "../components/Navbar";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
 export default function Profile() {
   const { logout } = useContext(AuthContext);
@@ -27,14 +29,16 @@ export default function Profile() {
   };
 
   const stats = [
-    { label: "RENDIMIENTO", value: 0.8, color: "#388E3C" },
-    { label: "PROGRESO", value: 0.4, color: "#1976D2" },
+    { label: "RENDIMIENTO", value: 0.8, color: Colors.lcd.primary },
+    { label: "PROGRESO", value: 0.4, color: Colors.buttons.blue },
   ];
 
   return (
     <View style={styles.root}>
-      {/* ── PANEL SUPERIOR ── */}
-      <BrickWallPanel rows={6}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* HEADER PANEL */}
+      <BrickWallPanel rows={6} style={styles.headerPanel}>
         <View style={[styles.topButtons, { paddingTop: insets.top }]}>
           <Pressable
             style={({ pressed }) => [styles.iconBtn, pressed && styles.btnPressed]}
@@ -42,80 +46,81 @@ export default function Profile() {
             onPress={() => router.back()}
           >
             <View style={styles.iconBtnInner}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-              <Text style={styles.iconBtnLabel}>Atras</Text>
+              <Ionicons name="arrow-back" size={20} color={Colors.buttons.text} />
+              <Text style={styles.iconBtnLabel}>ATRAS</Text>
             </View>
           </Pressable>
 
           <View style={styles.titleRow}>
-            <Text style={styles.titleBit}>Perf</Text>
-            <Text style={styles.titleHatch}>il</Text>
+            <Text style={styles.titleText}>PERFIL</Text>
           </View>
 
           <Pressable
             style={({ pressed }) => [
               styles.iconBtn, 
-              {backgroundColor: '#FFA000', borderColor: '#FF6F00'}, 
+              { backgroundColor: Colors.buttons.yellow }, 
               pressed && styles.btnPressed
             ]}
             onPressIn={handlePressIn}
-            onPress={() => router.replace("/edit-perfil")}
+            onPress={() => router.push("/edit-perfil" as any)}
           >
             <View style={styles.iconBtnInner}>
-              <Ionicons name="create-outline" size={22} color="#fff" />
-              <Text style={styles.iconBtnLabel}>Editar</Text>
+              <Ionicons name="create-outline" size={20} color={Colors.lcd.text} />
+              <Text style={[styles.iconBtnLabel, {color: Colors.lcd.text}]}>EDIT</Text>
             </View>
           </Pressable>
         </View>
       </BrickWallPanel>
 
-      {/* ── PANTALLA CENTRAL (LCD Hundida) ── */}
-      <View style={styles.screen}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={50} color="#78909C" />
-              </View>
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>Entrenador</Text>
-                <Text style={styles.userSubText}>ID: #001234</Text>
-              </View>
-            </View>
-
-            <View style={styles.creatureSection}>
-              <Image 
-                source={require(`../assets/egg_b.png`)} 
-                style={styles.creatureSmallImage} 
-              />
-              <Text style={styles.creatureTypeText}>Compañero: {creature?.name}</Text>
-            </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.statsContainer}>
-              <Text style={styles.statsTitle}>Estadísticas</Text>
-              {stats.map((stat, index) => (
-                <View key={index} style={styles.statRow}>
-                  <Text style={styles.statLabel}>{stat.label}</Text>
-                  <View style={styles.barBackground}>
-                    <View style={[styles.barFill, { width: `${stat.value * 100}%`, backgroundColor: stat.color }]} />
-                  </View>
+      {/* LCD SCREEN */}
+      <View style={styles.screenWrapper}>
+        <View style={styles.screenBezel}>
+          <ScrollView contentContainerStyle={styles.lcdContent} showsVerticalScrollIndicator={false}>
+            <View style={styles.card}>
+              <View style={styles.profileHeader}>
+                <View style={styles.avatarPlaceholder}>
+                  <Ionicons name="person" size={40} color={Colors.lcd.text} opacity={0.3} />
                 </View>
-              ))}
+                <View style={styles.userInfo}>
+                  <Text style={styles.userName}>USUARIO</Text>
+                  <Text style={styles.userSubText}>LVL. 12</Text>
+                </View>
+              </View>
+
+              <View style={styles.creatureSection}>
+                <Image 
+                  source={require("../assets/egg_b.png")} 
+                  style={styles.creatureSmallImage} 
+                />
+                <View style={styles.nameBadge}>
+                   <Text style={styles.creatureName}>{creature?.name?.toUpperCase() || "EGG"}</Text>
+                </View>
+              </View>
+
+              <View style={styles.statsContainer}>
+                {stats.map((stat, index) => (
+                  <View key={index} style={styles.statRow}>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
+                    <View style={styles.barBackground}>
+                      <View style={[styles.barFill, { width: `${stat.value * 100}%`, backgroundColor: stat.color }]} />
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              <Pressable 
+                style={({pressed}) => [styles.logoutButton, pressed && styles.btnPressed]} 
+                onPressIn={handlePressIn}
+                onPress={() => {void logout(), router.replace("/")}}
+              >
+                <Text style={styles.logoutText}>LOGOUT</Text>
+              </Pressable>
             </View>
-
-            <Pressable 
-              style={({pressed}) => [styles.logoutButton, pressed && styles.btnPressed]} 
-              onPressIn={handlePressIn}
-              onPress={() => {void logout(), router.replace("/")}}
-            >
-              <Text style={styles.logoutText}>Cerrar Sesión</Text>
-            </Pressable>
-
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
       </View>
+
+      <Navbar />
     </View>
   );
 }
@@ -123,169 +128,171 @@ export default function Profile() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.structure.mortar,
+  },
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   topButtons: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  btnPressed: {
-    transform: [{ translateY: 3 }],
-    borderBottomWidth: 2,
-    marginTop: 3,
+    paddingHorizontal: Spacing.md,
   },
   iconBtn: {
-    backgroundColor: "#388E3C", 
-    borderRadius: 14,
+    backgroundColor: Colors.buttons.green, 
+    borderRadius: 8,
     borderWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#1B5E20", 
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: Shadows.button.borderBottomWidth,
+  },
+  btnPressed: {
+    transform: [{ translateY: Shadows.button.pressedTransform }],
+    borderBottomWidth: 2,
+    marginTop: Shadows.button.pressedTransform,
   },
   iconBtnInner: {
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    minWidth: 50,
   },
   iconBtnLabel: {
-    color: "#fff",
-    fontSize: 9,
-    marginTop: 3,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    fontFamily: Typography.retro,
+    color: Colors.buttons.text,
+    fontSize: 6,
+    marginTop: 4,
   },
   titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  titleBit: {
-    fontSize: 22,
-    color: "#111",
-    fontFamily: "PressStart2P",
-  },
-  titleHatch: {
-    fontSize: 22,
-    color: "#388E3C",
-    fontFamily: "PressStart2P",
-  },
-  screen: {
-    flex: 1,
+    paddingVertical: 6,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: "#E8F5E9",
-    borderWidth: 8,
-    borderTopColor: "#78909C",
-    borderLeftColor: "#90A4AE",
-    borderRightColor: "#CFD8DC",
-    borderBottomColor: "#FFFFFF",
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
   },
-  scrollContent: {
-    paddingBottom: 20,
+  titleText: {
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
+  },
+  screenWrapper: {
+    flex: 1,
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
+    borderWidth: 8,
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
+  },
+  lcdContent: {
+    padding: Spacing.md,
   },
   card: {
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    borderRadius: 15,
-    padding: 20,
-    borderWidth: 3,
-    borderColor: "#A5D6A7",
+    flex: 1,
   },
-  row: {
+  profileHeader: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+    padding: 12,
+    backgroundColor: "rgba(0,0,0,0.03)",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   avatarPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    backgroundColor: "#CFD8DC",
+    width: 60,
+    height: 60,
+    borderRadius: 4,
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#90A4AE",
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
   },
   userInfo: {
-    marginLeft: 15,
+    marginLeft: 16,
   },
   userName: {
-    fontSize: 14,
-    color: "#333",
-    fontFamily: "PressStart2P",
-    marginBottom: 5,
+    fontFamily: Typography.retro,
+    fontSize: 10,
+    color: Colors.lcd.text,
+    marginBottom: 6,
   },
   userSubText: {
-    fontSize: 10,
-    color: "#555",
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: "gray",
   },
   creatureSection: {
     alignItems: "center",
-    marginVertical: 15,
+    marginVertical: 10,
   },
   creatureSmallImage: {
-    width: 120,
-    height: 120,
+    width: 140,
+    height: 140,
     resizeMode: "contain",
   },
-  creatureTypeText: {
-    marginTop: 5,
-    fontSize: 12,
-    color: "#2E7D32",
-    fontFamily: "PressStart2P",
+  nameBadge: {
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: Colors.lcd.primary,
+    borderRadius: 4,
   },
-  divider: {
-    height: 3,
-    backgroundColor: "#A5D6A7",
-    marginVertical: 15,
+  creatureName: {
+    fontFamily: Typography.retro,
+    fontSize: 10,
+    color: "white",
   },
   statsContainer: {
-    marginTop: 10,
-  },
-  statsTitle: {
-    fontSize: 14,
-    marginBottom: 15,
-    color: "#444",
-    fontFamily: "PressStart2P",
-    textAlign: "center",
+    marginVertical: 20,
   },
   statRow: {
-    marginBottom: 15,
+    marginBottom: 16,
   },
   statLabel: {
-    fontSize: 10,
-    color: "#333",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.lcd.text,
     marginBottom: 8,
-    fontFamily: "PressStart2P",
   },
   barBackground: {
-    height: 14,
-    backgroundColor: "#CFD8DC",
+    height: 12,
+    backgroundColor: "rgba(0,0,0,0.05)",
     borderWidth: 2,
-    borderColor: "#90A4AE",
-    borderRadius: 5,
+    borderColor: Colors.lcd.text,
+    borderRadius: 2,
     overflow: "hidden",
   },
   barFill: {
     height: "100%",
-    borderRadius: 0,
     borderRightWidth: 2,
-    borderColor: "#000",
+    borderColor: "rgba(0,0,0,0.1)",
   },
   logoutButton: {
-    marginTop: 30,
-    backgroundColor: "#D32F2F",
+    marginTop: 10,
+    backgroundColor: Colors.buttons.red,
     borderWidth: 2,
     borderBottomWidth: 5,
-    borderColor: "#B71C1C",
-    paddingVertical: 15,
-    borderRadius: 12,
+    borderColor: Colors.lcd.text,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: "center",
   },
   logoutText: {
-    color: "#fff",
-    fontSize: 12,
-    fontFamily: "PressStart2P",
+    fontFamily: Typography.retro,
+    color: "white",
+    fontSize: 10,
   },
-});
+});

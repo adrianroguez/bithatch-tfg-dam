@@ -8,79 +8,60 @@ import {
     Text,
     TouchableOpacity,
     View,
+    StatusBar,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import { useCreature } from "../context/CreatureContext";
 import { AuthContext } from "../context/AuthContext";
+import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
-/**
- * Enumeracion de tipos de huevos (debe coincidir con el enum del backend).
- */
 enum EggType {
     EGG_A = "EGG_A",
     EGG_B = "EGG_B",
     EGG_C = "EGG_C",
 }
 
-/**
- * Datos de configuracion para las opciones de huevos en el slider.
- */
 const EGG_OPTIONS = [
     {
         type: EggType.EGG_A,
-        name: "Huevo A",
-        description: "Descripción del huevo A.",
+        name: "HUEVO A",
+        description: "UN EXTRAÑO HUEVO ROJIZO.",
         image: require("../assets/egg_a.png"),
     },
     {
         type: EggType.EGG_B,
-        name: "Huevo B",
-        description: "Descripción del huevo B.",
+        name: "HUEVO B",
+        description: "HUEVO CON MANCHAS AZULES.",
         image: require("../assets/egg_b.png"),
     },
     {
         type: EggType.EGG_C,
-        name: "Huevo C",
-        description: "Descripción del huevo C.",
+        name: "HUEVO C",
+        description: "HUEVO DE COLOR VERDE VIVO.",
         image: require("../assets/egg_c.png"),
     },
 ];
 
-/**
- * Componente de pantalla de seleccion de huevo.
- * Permite a los usuarios elegir su huevo inicial de las opciones disponibles.
- * Muestra una interfaz de slider con navegacion y modal de confirmacion.
- * 
- * @returns {JSX.Element} Vista de seleccion de huevo con slider y modal
- */
 export default function SelectEgg() {
     const router = useRouter();
-    const { createStarter } = useCreature();
     const { token } = useContext(AuthContext);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showModal, setShowModal] = useState(false);
-    const [error, setError] = useState("");
 
-    // Valor animado para el efecto de levitacion del huevo
     const floatAnimation = useRef(new Animated.Value(0)).current;
 
-    /**
-     * Efecto para redirigir a login si el usuario no esta autenticado.
-     */
     useEffect(() => {
         if (!token) {
             router.replace("/login");
         }
     }, [token]);
 
-    /**
-     * Efecto para crear la animacion de levitacion del huevo.
-     * El huevo se mueve suavemente arriba y abajo en un loop infinito.
-     */
     useEffect(() => {
         Animated.loop(
             Animated.sequence([
                 Animated.timing(floatAnimation, {
-                    toValue: -10,
+                    toValue: -15,
                     duration: 1500,
                     useNativeDriver: true,
                 }),
@@ -93,30 +74,26 @@ export default function SelectEgg() {
         ).start();
     }, []);
 
+    const handlePressIn = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    };
+
     const currentEgg = EGG_OPTIONS[currentIndex];
 
-    /**
-     * Avanza al siguiente huevo en el slider.
-     * Se reinicia al primer huevo al llegar al final.
-     */
     const nextEgg = () => {
+        handlePressIn();
         setCurrentIndex((prev) => (prev + 1) % EGG_OPTIONS.length);
     };
 
-    /**
-     * Retrocede al huevo anterior en el slider.
-     * Se reinicia al ultimo huevo al estar en el principio.
-     */
     const prevEgg = () => {
+        handlePressIn();
         setCurrentIndex((prev) =>
             prev === 0 ? EGG_OPTIONS.length - 1 : prev - 1
         );
     };
 
-    /**
-     * Confirma la selección de huevo y redirige a la pantalla de nacimiento para ponerle nombre.
-     */
     const confirmSelection = () => {
+        handlePressIn();
         setShowModal(false);
         router.push({
             pathname: "/nacimiento",
@@ -125,67 +102,90 @@ export default function SelectEgg() {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Escoge un huevo</Text>
-
-            {/* Slider de huevos */}
-            <View style={styles.eggContentWrapper}>
-                {/* Contenedor de imagen con flechas - alineacion automatica */}
-                <View style={styles.sliderContainer}>
-                    <TouchableOpacity onPress={prevEgg} style={styles.navButton}>
-                        <Text style={styles.navButtonText}>{"<"}</Text>
-                    </TouchableOpacity>
-
-                    <Animated.Image
-                        source={currentEgg.image}
-                        style={[
-                            styles.eggImage,
-                            {
-                                transform: [{ translateY: floatAnimation }]
-                            }
-                        ]}
-                    />
-
-                    <TouchableOpacity onPress={nextEgg} style={styles.navButton}>
-                        <Text style={styles.navButtonText}>{">"}</Text>
-                    </TouchableOpacity>
+        <View style={styles.root}>
+            <StatusBar barStyle="dark-content" />
+            
+            {/* HEADER PANEL */}
+            <BrickWallPanel rows={6} style={styles.headerPanel}>
+                <View style={styles.headerContent}>
+                    <Text style={styles.headerTitle}>ESCUCHA EL RITMO...</Text>
                 </View>
+            </BrickWallPanel>
 
-                {/* Informacion del huevo debajo */}
-                <View style={styles.eggInfo}>
-                    <Text style={styles.eggName}>{currentEgg.name}</Text>
-                    <Text style={styles.eggDescription}>{currentEgg.description}</Text>
+            <View style={styles.screenWrapper}>
+                <View style={styles.screenBezel}>
+                    <View style={styles.lcdContent}>
+                        <Text style={styles.title}>ELIGE TU HUEVO</Text>
+
+                        <View style={styles.sliderContainer}>
+                            <TouchableOpacity 
+                                onPressIn={handlePressIn} 
+                                onPress={prevEgg} 
+                                style={styles.navButton}
+                            >
+                                <Text style={styles.navButtonText}>{"<"}</Text>
+                            </TouchableOpacity>
+
+                            <View style={styles.eggImageWrapper}>
+                                <Animated.Image
+                                    source={currentEgg.image}
+                                    style={[
+                                        styles.eggImage,
+                                        {
+                                            transform: [{ translateY: floatAnimation }]
+                                        }
+                                    ]}
+                                />
+                            </View>
+
+                            <TouchableOpacity 
+                                onPressIn={handlePressIn} 
+                                onPress={nextEgg} 
+                                style={styles.navButton}
+                            >
+                                <Text style={styles.navButtonText}>{">"}</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.eggInfo}>
+                            <View style={styles.nameBadge}>
+                                <Text style={styles.eggName}>{currentEgg.name}</Text>
+                            </View>
+                            <Text style={styles.eggDescription}>{currentEgg.description}</Text>
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.acceptButton}
+                            onPressIn={handlePressIn}
+                            onPress={() => setShowModal(true)}
+                        >
+                            <Text style={styles.acceptButtonText}>ACEPTAR</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-            <TouchableOpacity
-                style={styles.acceptButton}
-                onPress={() => setShowModal(true)}
-            >
-                <Text style={styles.acceptButtonText}>Aceptar</Text>
-            </TouchableOpacity>
-
             {/* Modal de confirmacion */}
-            <Modal visible={showModal} transparent animationType="slide">
+            <Modal visible={showModal} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalText}>
-                            ¿Esta seguro de escoger el {currentEgg.name}?
+                            ¿ESCOGER EL {currentEgg.name}?
                         </Text>
                         <View style={styles.modalButtons}>
                             <TouchableOpacity
                                 style={[styles.modalButton, styles.cancelButton]}
+                                onPressIn={handlePressIn}
                                 onPress={() => setShowModal(false)}
                             >
-                                <Text style={styles.buttonText}>No</Text>
+                                <Text style={styles.modalBtnText}>NO</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.modalButton, styles.confirmButton]}
+                                onPressIn={handlePressIn}
                                 onPress={confirmSelection}
                             >
-                                <Text style={styles.buttonText}>Si</Text>
+                                <Text style={styles.modalBtnText}>SÍ</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -196,113 +196,178 @@ export default function SelectEgg() {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    root: {
         flex: 1,
+        backgroundColor: Colors.structure.mortar,
+    },
+    headerPanel: {
+        borderBottomWidth: 3,
+        borderBottomColor: "rgba(0,0,0,0.1)",
+    },
+    headerContent: {
+        ...StyleSheet.absoluteFillObject,
         justifyContent: "center",
         alignItems: "center",
-        padding: 20,
-        backgroundColor: "#f5f5f5",
+        paddingTop: 30,
+    },
+    headerTitle: {
+        fontFamily: Typography.retro,
+        fontSize: 10,
+        color: Colors.lcd.text,
+        opacity: 0.6,
+    },
+    screenWrapper: {
+        flex: 1,
+        padding: Spacing.md,
+        backgroundColor: Colors.structure.brick,
+    },
+    screenBezel: {
+        flex: 1,
+        backgroundColor: Colors.lcd.background,
+        borderRadius: 20,
+        borderWidth: 10,
+        borderTopColor: Colors.bezel.top,
+        borderLeftColor: Colors.bezel.left,
+        borderRightColor: Colors.bezel.right,
+        borderBottomColor: Colors.bezel.bottom,
+        overflow: "hidden",
+    },
+    lcdContent: {
+        flex: 1,
+        backgroundColor: Colors.lcd.background,
+        alignItems: "center",
+        padding: Spacing.xl,
+        justifyContent: "space-between",
     },
     title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 40,
+        fontFamily: Typography.retro,
+        fontSize: 14,
+        color: Colors.lcd.text,
         textAlign: "center",
-    },
-    eggContentWrapper: {
-        width: "100%",
-        marginBottom: 40,
-        alignItems: "center",
+        marginTop: 10,
     },
     sliderContainer: {
         flexDirection: "row",
-        alignItems: "center", // Alinea automaticamente las flechas al centro de la imagen
+        alignItems: "center",
         justifyContent: "center",
         width: "100%",
-        gap: 20, // Espacio entre flechas e imagen
     },
     navButton: {
-        padding: 15,
-        backgroundColor: "#ddd",
-        borderRadius: 50,
+        width: 50,
+        height: 50,
+        backgroundColor: "white",
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: Colors.lcd.text,
+        borderBottomWidth: 4,
+        justifyContent: "center",
+        alignItems: "center",
     },
     navButtonText: {
-        fontSize: 20,
-        fontWeight: "bold",
+        fontFamily: Typography.retro,
+        fontSize: 14,
+        color: Colors.lcd.text,
+    },
+    eggImageWrapper: {
+        flex: 1,
+        height: 180,
+        justifyContent: "center",
+        alignItems: "center",
     },
     eggImage: {
-        width: 150,
-        height: 150,
+        width: 140,
+        height: 140,
         resizeMode: "contain",
     },
     eggInfo: {
         alignItems: "center",
-        marginTop: 10,
+        width: "100%",
+    },
+    nameBadge: {
+        backgroundColor: Colors.lcd.accent,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 4,
+        borderWidth: 2,
+        borderColor: Colors.lcd.text,
+        marginBottom: 10,
     },
     eggName: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 5,
+        fontFamily: Typography.retro,
+        fontSize: 10,
+        color: Colors.lcd.text,
     },
     eggDescription: {
-        fontSize: 14,
-        color: "#666",
+        fontFamily: Typography.retro,
+        fontSize: 7,
+        color: "gray",
         textAlign: "center",
+        lineHeight: 12,
         paddingHorizontal: 10,
     },
     acceptButton: {
-        backgroundColor: "#007AFF",
-        paddingVertical: 12,
-        paddingHorizontal: 40,
-        borderRadius: 25,
+        backgroundColor: Colors.buttons.green,
+        paddingVertical: 16,
+        width: "100%",
+        borderRadius: 8,
+        borderWidth: 2,
+        borderBottomWidth: 6,
+        borderColor: Colors.lcd.text,
+        alignItems: "center",
+        marginBottom: 10,
     },
     acceptButtonText: {
+        fontFamily: Typography.retro,
         color: "white",
-        fontSize: 18,
-        fontWeight: "bold",
-    },
-    errorText: {
-        color: "red",
-        marginBottom: 10,
+        fontSize: 12,
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor: "rgba(0,0,0,0.7)",
         justifyContent: "center",
         alignItems: "center",
     },
     modalContent: {
-        backgroundColor: "white",
-        padding: 20,
-        borderRadius: 10,
         width: "80%",
+        backgroundColor: Colors.lcd.background,
+        borderWidth: 6,
+        borderColor: Colors.lcd.primary,
+        borderRadius: 16,
+        padding: 24,
         alignItems: "center",
     },
     modalText: {
-        fontSize: 18,
-        marginBottom: 20,
+        fontFamily: Typography.retro,
+        fontSize: 10,
+        color: Colors.lcd.text,
         textAlign: "center",
+        lineHeight: 18,
+        marginBottom: 24,
     },
     modalButtons: {
         flexDirection: "row",
-        justifyContent: "space-around",
+        justifyContent: "space-between",
         width: "100%",
+        gap: 16,
     },
     modalButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        minWidth: 80,
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderBottomWidth: 4,
+        borderColor: Colors.lcd.text,
         alignItems: "center",
     },
+    modalBtnText: {
+        fontFamily: Typography.retro,
+        fontSize: 10,
+        color: "white",
+    },
     cancelButton: {
-        backgroundColor: "#ccc",
+        backgroundColor: Colors.buttons.red,
     },
     confirmButton: {
-        backgroundColor: "#007AFF",
-    },
-    buttonText: {
-        color: "white",
-        fontWeight: "bold",
+        backgroundColor: Colors.buttons.green,
     },
 });

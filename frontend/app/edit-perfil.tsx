@@ -4,125 +4,183 @@ import {
   Text, 
   View, 
   StyleSheet, 
-  TouchableOpacity, 
-  SafeAreaView, 
+  Pressable, 
   TextInput,
   Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  StatusBar,
+  TouchableOpacity
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { AuthContext } from "../context/AuthContext";
+import * as Haptics from "expo-haptics";
+import BrickWallPanel from "../components/BrickWallPanel";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
 export default function EditProfile() {
   const router = useRouter();
 
   // Estados para los inputs
-  const [name, setName] = useState("Usuario-prueba");
-  const [email, setEmail] = useState("usuario@email.com");
-  const [password, setPassword] = useState("user123");
+  const [name, setName] = useState("USUARIO");
+  const [email, setEmail] = useState("USUARIO@EMAIL.COM");
+  const [password, setPassword] = useState("USER123");
+
+  const handlePressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  };
 
   const handleSave = () => {
-    // TODO: Aquí la lógica para actualizar en el backend
+    handlePressIn();
     console.log("Datos guardados:", { name, email, password });
     router.back();
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.root}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* HEADER PANEL */}
+      <BrickWallPanel rows={6} style={styles.headerPanel}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity 
+            onPressIn={handlePressIn} 
+            onPress={() => router.back()}
+            style={styles.headerBtn}
+          >
+            <Ionicons name="close-outline" size={24} color={Colors.lcd.text} />
+          </TouchableOpacity>
+          
+          <Text style={styles.headerTitle}>EDITAR</Text>
+          
+          < View style={{ width: 44 }} />
+        </View>
+      </BrickWallPanel>
+
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        {/* Header simple */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="close-outline" size={30} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Editar Perfil</Text>
-          <View style={{ width: 30 }} /> 
+        {/* LCD SCREEN */}
+        <View style={styles.screenWrapper}>
+          <View style={styles.screenBezel}>
+            <ScrollView contentContainerStyle={styles.lcdContent} showsVerticalScrollIndicator={false}>
+              
+              <View style={styles.avatarSection}>
+                <View style={styles.avatarCircle}>
+                   <Ionicons name="person" size={40} color={Colors.lcd.text} opacity={0.2} />
+                   <TouchableOpacity style={styles.editIconBadge} onPressIn={handlePressIn}>
+                      <Ionicons name="camera" size={14} color="white" />
+                   </TouchableOpacity>
+                </View>
+                <Image 
+                  source={require("../assets/egg_c.png")} 
+                  style={styles.creatureSmall} 
+                />
+              </View>
+
+              <View style={styles.form}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>NOMBRE</Text>
+                  <TextInput 
+                    style={styles.input}
+                    value={name}
+                    onChangeText={setName}
+                    placeholderTextColor="rgba(0,0,0,0.3)"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>EMAIL</Text>
+                  <TextInput 
+                    style={styles.input}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    placeholderTextColor="rgba(0,0,0,0.3)"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>PASSWORD</Text>
+                  <TextInput 
+                    style={styles.input}
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    placeholderTextColor="rgba(0,0,0,0.3)"
+                  />
+                </View>
+              </View>
+
+              <Pressable 
+                style={({pressed}) => [styles.saveButton, pressed && styles.btnPressed]} 
+                onPressIn={handlePressIn}
+                onPress={handleSave}
+              >
+                <Text style={styles.saveButtonText}>GUARDAR</Text>
+              </Pressable>
+              
+            </ScrollView>
+          </View>
         </View>
-
-        <ScrollView contentContainerStyle={styles.content}>
-          {/* Foto de perfil */}
-          <View style={styles.avatarSection}>
-            <View style={styles.avatarCircle}>
-               <Ionicons name="person" size={60} color="#CCC" />
-               <TouchableOpacity style={styles.editIconBadge}>
-                  <Ionicons name="camera" size={18} color="white" />
-               </TouchableOpacity>
-            </View>
-            <Image 
-              source={require("../assets/egg_c.png")} 
-              style={styles.creatureSmall} 
-            />
-          </View>
-
-          {/* Formulario */}
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nombre de usuario</Text>
-              <TextInput 
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="Tu nombre"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput 
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="correo@ejemplo.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nueva Contraseña</Text>
-              <TextInput 
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="********"
-                secureTextEntry
-              />
-            </View>
-          </View>
-
-          {/* Botón Guardar */}
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>GUARDAR</Text>
-          </TouchableOpacity>
-        </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.structure.mortar,
   },
-  header: {
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+  },
+  headerContent: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: Spacing.md,
+    paddingTop: 30, // Account for notch
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
   },
-  content: {
-    paddingHorizontal: 30,
+  headerBtn: {
+    width: 44,
+    height: 44,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  screenWrapper: {
+    flex: 1,
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
+    borderWidth: 8,
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
+  },
+  lcdContent: {
+    padding: Spacing.md,
     alignItems: "center",
   },
   avatarSection: {
@@ -133,68 +191,75 @@ const styles = StyleSheet.create({
     gap: 20
   },
   avatarCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#F5F5F5",
+    width: 80,
+    height: 80,
+    borderRadius: 4,
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#EEE",
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
   },
   editIconBadge: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#4D94FF',
-    padding: 8,
-    borderRadius: 20,
+    bottom: -5,
+    right: -5,
+    backgroundColor: Colors.buttons.blue,
+    padding: 6,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.lcd.text,
   },
   creatureSmall: {
     width: 60,
     height: 60,
     resizeMode: 'contain',
-    opacity: 0.6
+    opacity: 0.8
   },
   form: {
     width: "100%",
-    marginTop: 20,
+    marginTop: 10,
   },
   inputGroup: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-    fontWeight: "500",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.lcd.primary,
+    marginBottom: 10,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#DDD",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: "#FAFAFA",
+    borderWidth: 2,
+    borderColor: Colors.lcd.text,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    backgroundColor: "rgba(0,0,0,0.03)",
+    color: Colors.lcd.text,
+  },
+  btnPressed: {
+    transform: [{ translateY: Shadows.button.pressedTransform }],
+    borderBottomWidth: 2,
+    marginTop: Shadows.button.pressedTransform,
   },
   saveButton: {
-    backgroundColor: "#4D94FF",
+    backgroundColor: Colors.buttons.green,
     width: "100%",
-    paddingVertical: 15,
-    borderRadius: 10,
+    paddingVertical: 14,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderBottomWidth: 5,
+    borderColor: Colors.lcd.text,
     alignItems: "center",
-    marginTop: 30,
-    marginBottom: 40,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    marginTop: 10,
+    marginBottom: 30,
   },
   saveButtonText: {
+    fontFamily: Typography.retro,
     color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-    letterSpacing: 1,
+    fontSize: 10,
   },
 });

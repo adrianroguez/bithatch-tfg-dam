@@ -1,11 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable, StatusBar } from "react-native";
 import { Navbar } from "../components/Navbar";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import BrickWallPanel from "../components/BrickWallPanel";
 import { useRouter } from "expo-router";
+import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
 export default function BatallaScreen() {
   const insets = useSafeAreaInsets();
@@ -17,8 +18,10 @@ export default function BatallaScreen() {
 
   return (
     <View style={styles.root}>
-      {/* ── PANEL SUPERIOR ── */}
-      <BrickWallPanel rows={6}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* HEADER PANEL */}
+      <BrickWallPanel rows={6} style={styles.headerPanel}>
         <View style={[styles.topButtons, { paddingTop: insets.top }]}>
           <Pressable
             style={({ pressed }) => [styles.iconBtn, pressed && styles.btnPressed]}
@@ -26,36 +29,39 @@ export default function BatallaScreen() {
             onPress={() => router.back()}
           >
             <View style={styles.iconBtnInner}>
-              <Ionicons name="arrow-back" size={22} color="#fff" />
-              <Text style={styles.iconBtnLabel}>Atras</Text>
+              <Ionicons name="arrow-back" size={20} color={Colors.buttons.text} />
+              <Text style={styles.iconBtnLabel}>ATRAS</Text>
             </View>
           </Pressable>
 
           <View style={styles.titleRow}>
-            <Text style={styles.titleBit}>Bata</Text>
-            <Text style={styles.titleHatch}>lla</Text>
+            <Text style={styles.titleText}>BIT<Text style={{color: Colors.buttons.blue}}>HATCH</Text></Text>
           </View>
 
           <View style={{ width: 68 }} />
         </View>
       </BrickWallPanel>
 
-      {/* ── PANTALLA CENTRAL (LCD Hundida) ── */}
-      <View style={styles.screen}>
-        <View style={styles.arena}>
-          <MaterialCommunityIcons name="sword-cross" size={100} color="#1976D2" />
-          <Text style={styles.comingSoon}>Próximamente...</Text>
-          <Text style={styles.description}>
-            Aquí podrás enfrentar a tu criatura contra otros oponentes.
-          </Text>
-        </View>
+      {/* LCD SCREEN */}
+      <View style={styles.screenWrapper}>
+        <View style={styles.screenBezel}>
+          <View style={styles.lcdContent}>
+            <View style={styles.arena}>
+              <MaterialCommunityIcons name="sword-cross" size={80} color={Colors.buttons.blue} />
+              <Text style={styles.comingSoon}>PRÓXIMAMENTE</Text>
+              <Text style={styles.description}>
+                ENTRENA A TU CRIATURA PARA EL COMBATE.
+              </Text>
+            </View>
 
-        <View style={styles.placeholderCreature}>
-           <Image 
-             source={require("../assets/egg_b.png")} 
-             style={styles.creatureSmall} 
-           />
-           <Text style={styles.statusText}>Tu criatura está descansando</Text>
+            <View style={styles.statusBox}>
+              <Image 
+                source={require("../assets/egg_b.png")} 
+                style={styles.creatureSmall} 
+              />
+              <Text style={styles.statusText}>ESPERANDO RIVAL...</Text>
+            </View>
+          </View>
         </View>
       </View>
 
@@ -67,109 +73,117 @@ export default function BatallaScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.structure.mortar,
+  },
+  headerPanel: {
+    borderBottomWidth: 3,
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   topButtons: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  btnPressed: {
-    transform: [{ translateY: 3 }],
-    borderBottomWidth: 2,
-    marginTop: 3,
+    paddingHorizontal: Spacing.md,
   },
   iconBtn: {
-    backgroundColor: "#1976D2", 
-    borderRadius: 14,
+    backgroundColor: Colors.buttons.blue, 
+    borderRadius: 8,
     borderWidth: 2,
-    borderBottomWidth: 5,
-    borderColor: "#0D47A1", 
+    borderColor: Colors.lcd.text,
+    borderBottomWidth: Shadows.button.borderBottomWidth,
+  },
+  btnPressed: {
+    transform: [{ translateY: Shadows.button.pressedTransform }],
+    borderBottomWidth: 2,
+    marginTop: Shadows.button.pressedTransform,
   },
   iconBtnInner: {
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   iconBtnLabel: {
-    color: "#fff",
-    fontSize: 9,
-    marginTop: 3,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    fontFamily: Typography.retro,
+    color: Colors.buttons.text,
+    fontSize: 6,
+    marginTop: 4,
   },
   titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
   },
-  titleBit: {
-    fontSize: 22,
-    color: "#111",
-    fontFamily: "PressStart2P",
+  titleText: {
+    fontFamily: Typography.retro,
+    fontSize: 14,
+    color: Colors.lcd.text,
   },
-  titleHatch: {
-    fontSize: 22,
-    color: "#1976D2", // Azul para batalla
-    fontFamily: "PressStart2P",
-  },
-  screen: {
+  screenWrapper: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    backgroundColor: "#E3F2FD",
+    padding: Spacing.md,
+    backgroundColor: Colors.structure.brick,
+  },
+  screenBezel: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    borderRadius: 20,
     borderWidth: 8,
-    borderTopColor: "#78909C",
-    borderLeftColor: "#90A4AE",
-    borderRightColor: "#CFD8DC",
-    borderBottomColor: "#FFFFFF",
+    borderTopColor: Colors.bezel.top,
+    borderLeftColor: Colors.bezel.left,
+    borderRightColor: Colors.bezel.right,
+    borderBottomColor: Colors.bezel.bottom,
+    overflow: "hidden",
+  },
+  lcdContent: {
+    flex: 1,
+    backgroundColor: Colors.lcd.background,
+    padding: Spacing.md,
+    justifyContent: "center",
   },
   arena: {
-    flex: 2,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#BBDEFB",
+    backgroundColor: "rgba(0,0,0,0.03)",
     borderRadius: 12,
-    borderWidth: 4,
-    borderColor: "#90CAF9",
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: "#1976D2",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    borderWidth: 2,
+    borderColor: "rgba(0,0,0,0.05)",
+    padding: 24,
+    marginBottom: 24,
   },
   comingSoon: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#1565C0",
+    fontFamily: Typography.retro,
+    fontSize: 12,
+    color: Colors.buttons.blue,
     marginTop: 20,
-    fontFamily: "PressStart2P",
     textAlign: "center",
   },
   description: {
-    fontSize: 14,
-    color: "#333",
+    fontFamily: Typography.retro,
+    fontSize: 7,
+    color: Colors.lcd.text,
     textAlign: "center",
     marginTop: 15,
-    paddingHorizontal: 10,
-    fontWeight: "700",
+    lineHeight: 12,
   },
-  placeholderCreature: {
-    flex: 1,
+  statusBox: {
     alignItems: "center",
     justifyContent: "center",
   },
   creatureSmall: {
-    width: 90,
-    height: 90,
+    width: 80,
+    height: 80,
     resizeMode: "contain",
+    opacity: 0.8,
   },
   statusText: {
-    fontSize: 12,
-    color: "#1565C0",
-    marginTop: 10,
-    fontWeight: "bold",
+    fontFamily: Typography.retro,
+    fontSize: 8,
+    color: Colors.lcd.text,
+    marginTop: 16,
+    opacity: 0.6,
   },
 });

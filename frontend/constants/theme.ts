@@ -1,63 +1,60 @@
 /**
- * Constantes de tema para la aplicacion.
- * Define colores y fuentes para modos claro y oscuro.
- * Los colores pueden ser personalizados para diferentes temas.
- * Opciones alternativas de estilo: Nativewind, Tamagui, unistyles.
+ * Sistema de diseño "Premium Retro" para BitHatch.
+ * Basado en la estética Tamagotchi de los 90.
  */
 
-import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
-/**
- * Paleta de colores para modos claro y oscuro.
- * Cada modo define colores para texto, fondo, tinte, iconos y pestanhas.
- */
 export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+  // Colores principales de la pantalla (LCD)
+  lcd: {
+    background: "#FFFFFF",
+    text: "#111111",
+    primary: "#2E7D32", // Verde BitHatch
+    secondary: "#388E3C",
+    accent: "#FFA500", // Naranja
   },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+  
+  // Colores de los botones físicos
+  buttons: {
+    red: "#D32F2F",
+    green: "#388E3C",
+    blue: "#1976D2",
+    yellow: "#FBC02D",
+    text: "#FFFFFF",
   },
+
+  // Colores de la estructura (Ladrillos / Carcasa)
+  structure: {
+    brick: "#D4DCD8",
+    mortar: "#A3B0AA",
+    highlight: "rgba(255, 255, 255, 0.7)",
+    shadow: "rgba(0, 0, 0, 0.25)",
+    overlay: "rgba(0, 0, 0, 0.03)",
+  },
+
+  // Bordes del bisel LCD
+  bezel: {
+    top: "#78909C",
+    left: "#90A4AE",
+    right: "#CFD8DC",
+    bottom: "#FFFFFF",
+  }
 };
 
-/**
- * Familias de fuentes para diferentes plataformas.
- * Proporciona selecciones de fuentes especificas para iOS, web y por defecto.
- */
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS UIFontDescriptorSystemDesignDefault */
-    sans: 'system-ui',
-    /** iOS UIFontDescriptorSystemDesignSerif */
-    serif: 'ui-serif',
-    /** iOS UIFontDescriptorSystemDesignRounded */
-    rounded: 'ui-rounded',
-    /** iOS UIFontDescriptorSystemDesignMonospaced */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const Typography = {
+  retro: "PressStart2P",
+};
+
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+};
+
+export const Shadows = {
+  button: {
+    borderBottomWidth: 5,
+    pressedTransform: 3,
+  }
+};

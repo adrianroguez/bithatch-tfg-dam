@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
-  StatusBar
+  StatusBar,
+  ActivityIndicator
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -19,37 +20,113 @@ import { AuthContext } from "../context/AuthContext";
 import BrickWallPanel from "../components/BrickWallPanel";
 import { Colors, Typography, Spacing, Shadows } from "../constants/theme";
 
-const INITIAL_MESSAGES = [
-  { id: "1", text: "HOLA, ¿CÓMO ESTÁS HOY?", sender: "creature" },
-  { id: "2", text: "¡LISTO PARA ENTRENAR!", sender: "user" },
-  { id: "3", text: "¿QUÉ RUTINA HAREMOS?", sender: "user" },
-  { id: "4", text: "HOY TOCA PIERNA. ¡VAMOS!", sender: "creature" },
-];
+interface Message {
+  id: string;
+  text: string;
+  sender: "user" | "creature";
+}
 
 export default function ChatScreen() {
   const router = useRouter();
+  const { token, apiUrl } = useContext(AuthContext);
+  
   const [message, setMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState(INITIAL_MESSAGES);
+  const [chatHistory, setChatHistory] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [creatureName, setCreatureName] = useState("TU CRIATURA");
 
   const handlePressIn = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   };
 
-  const sendMessage = () => {
-    if (message.trim().length === 0) return;
+  // Carga inicial: Nombre de la criatura y saludo
+  useEffect(() => {
+    const initChat = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/creatures/my`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCreatureName(data.name || "TU CRIATURA");
+          
+          setChatHistory([{
+            id: "initial",
+            text: `¡HOLA! SOY ${data.name.toUpperCase()}, ¿EN QUÉ PUEDO AYUDARTE HOY?`,
+            sender: "creature"
+          }]);
+        } else {
+          setChatHistory([{
+            id: "initial",
+            text: "¡HOLA! ESTOY LISTA PARA ENTRENAR. ¿QUÉ HAREMOS HOY?",
+            sender: "creature"
+          }]);
+        }
+      } catch (err) {
+        setChatHistory([{
+          id: "initial",
+          text: "¡HOLA! PARECE QUE TENGO PROBLEMAS DE CONEXIÓN, PERO ESTOY AQUÍ.",
+          sender: "creature"
+        }]);
+      }
+    };
+
+    if (token) initChat();
+  }, [token, apiUrl]);
+
+  const sendMessage = async () => {
+    if (message.trim().length === 0 || isTyping) return;
+    
+    const userMsgText = message.trim().toUpperCase();
     handlePressIn();
     
-    const newMessage = {
+    // 1. Añadimos mensaje del usuario localmente
+    const userMsg: Message = {
       id: Date.now().toString(),
-      text: message.toUpperCase(),
+      text: userMsgText,
       sender: "user",
     };
     
-    setChatHistory([...chatHistory, newMessage]);
+    setChatHistory(prev => [...prev, userMsg]);
     setMessage("");
+    setIsTyping(true);
+
+    try {
+      // 2. Petición al backend AI
+      const response = await fetch(`${apiUrl}/ai/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ message: userMsgText })
+      });
+
+      if (!response.ok) throw new Error("Error en la IA");
+
+      const data = await response.json();
+      
+      // 3. Añadimos respuesta de la criatura
+      const creatureMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: data.reply.toUpperCase(),
+        sender: "creature",
+      };
+      setChatHistory(prev => [...prev, creatureMsg]);
+
+    } catch (error) {
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "LO SIENTO, NO PUEDO PENSAR CON CLARIDAD AHORA... INTÉNTALO DE NUEVO.",
+        sender: "creature",
+      };
+      setChatHistory(prev => [...prev, errorMsg]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
-  const renderMessage = ({ item }: { item: typeof INITIAL_MESSAGES[0] }) => {
+  const renderMessage = ({ item }: { item: Message }) => {
     const isUser = item.sender === "user";
     return (
       <View style={[styles.messageWrapper, isUser ? styles.userWrapper : styles.creatureWrapper]}>
@@ -77,7 +154,7 @@ export default function ChatScreen() {
             <Ionicons name="arrow-back" size={20} color={Colors.lcd.text} />
           </TouchableOpacity>
           
-          <Text style={styles.headerTitle}>CHAT</Text>
+          <Text style={styles.headerTitle}>{creatureName.toUpperCase()}</Text>
           
           <View style={{ width: 44 }} />
         </View>
@@ -98,6 +175,9 @@ export default function ChatScreen() {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.chatList}
                 showsVerticalScrollIndicator={false}
+                ref={(ref) => {
+                  if (ref) setTimeout(() => ref.scrollToEnd({ animated: true }), 100);
+                }}
               />
 
               {/* Status Indicator */}
@@ -107,7 +187,10 @@ export default function ChatScreen() {
                    style={styles.creatureChatImage} 
                  />
                  <View style={styles.typingIndicator}>
-                   <Text style={styles.typingText}>ESCUCHANDO...</Text>
+                   <Text style={styles.typingText}>
+                     {isTyping ? "PENSANDO..." : "ESCUCHANDO..."}
+                   </Text>
+                   {isTyping && <ActivityIndicator size="small" color={Colors.lcd.text} style={{ marginLeft: 8 }} />}
                  </View>
               </View>
             </View>
@@ -124,11 +207,13 @@ export default function ChatScreen() {
               value={message}
               onChangeText={setMessage}
               multiline
+              editable={!isTyping}
             />
             <TouchableOpacity 
-              style={styles.sendButton} 
+              style={[styles.sendButton, isTyping && { opacity: 0.5 }]} 
               onPressIn={handlePressIn}
               onPress={sendMessage}
+              disabled={isTyping}
             >
               <Ionicons name="send" size={20} color="white" />
             </TouchableOpacity>

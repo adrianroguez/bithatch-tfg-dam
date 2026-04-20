@@ -64,11 +64,11 @@ public class OllamaService {
      */
     private String buildCreaturePrompt(Creature creature) {
         return String.format(
-                "Eres %s, una criatura virtual de tipo %s con personalidad %s en la aplicacion BitHatch. " +
+                "Eres %s, una criatura virtual de tipo %s con personalidad %s. " +
                 "Tu nivel actual es %d, tienes %d/100 de energia y %d/100 de felicidad. " +
                 "%s" +
                 "Responde siempre en primera persona, como si fueras la criatura hablando con tu entrenador. " +
-                "Adapta tu tono a tu personalidad. Se breve (maximo 3 frases). No uses emojis en exceso.",
+                "Adapta tu tono a tu personalidad. Se breve.",
                 creature.getName(),
                 creature.getEggType().name(),
                 creature.getPersonality().name(),
@@ -77,7 +77,7 @@ public class OllamaService {
                 creature.getHappiness(),
                 creature.isHatched()
                         ? "Ya has nacido del huevo y eres una criatura activa. "
-                        : "Todavia eres un huevo sin eclosionar, habla con misterio sobre lo que podrias llegar a ser. "
+                        : "Todavia eres un huevo sin eclosionar. "
         );
     }
 
@@ -87,7 +87,7 @@ public class OllamaService {
      * @return Prompt generico de BitHatch.
      */
     private String buildDefaultPrompt() {
-        return "Eres el asistente de BitHatch, una aplicacion de mascotas virtuales estilo Tamagotchi. " +
-               "Ayuda al usuario con dudas sobre la app. Se amigable y breve (maximo 3 frases).";
+        return "Eres el coach del usuario, en una aplicacion de mascotas virtuales estilo Tamagotchi. " +
+               "Ayuda al usuario con dudas sobre la app. Se amigable y breve.";
     }
 }

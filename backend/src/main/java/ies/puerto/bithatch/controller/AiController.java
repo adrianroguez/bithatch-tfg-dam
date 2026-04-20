@@ -3,12 +3,17 @@ package ies.puerto.bithatch.controller;
 import java.security.Principal;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ies.puerto.bithatch.model.entities.ChatMessage;
 import ies.puerto.bithatch.service.OllamaService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -53,6 +58,29 @@ public class AiController {
         return ResponseEntity.ok(new ChatResponse(reply));
     }
 
+    /**
+     * Obtiene el historial de mensajes de chat del usuario actual.
+     *
+     * @param principal Usuario autenticado.
+     * @return Lista de mensajes historicos.
+     */
+    @Operation(
+            summary = "Historial de chat",
+            description = "Obtiene los ultimos mensajes del historial de chat para mantener contexto en frontend",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Historial recuperado")
+    })
+    @GetMapping("/chat/history")
+    public ResponseEntity<List<ChatHistoryItem>> getHistory(Principal principal) {
+        List<ChatMessage> history = ollamaService.getChatHistory(principal.getName());
+        List<ChatHistoryItem> response = history.stream()
+                .map(msg -> new ChatHistoryItem(msg.getId().toString(), msg.getRole(), msg.getContent(), msg.getCreatedAt().toString()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
+
     // ── Records de Request / Response ────────────────────────────────────────
 
     /**
@@ -68,4 +96,9 @@ public class AiController {
      * @param reply Respuesta generada por el modelo de IA.
      */
     public record ChatResponse(String reply) {}
+
+    /**
+     * DTO para el historial de chat.
+     */
+    public record ChatHistoryItem(String id, String role, String content, String createdAt) {}
 }

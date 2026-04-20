@@ -4,8 +4,20 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import ies.puerto.bithatch.model.entities.Creature;
+import ies.puerto.bithatch.model.entities.User;
+import ies.puerto.bithatch.model.entities.ChatMessage;
+import ies.puerto.bithatch.repository.ChatMessageRepository;
 import ies.puerto.bithatch.repository.CreatureRepository;
 import ies.puerto.bithatch.repository.UserRepository;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.SystemMessage;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Servicio que gestiona la comunicacion con el modelo de IA Ollama.
@@ -17,13 +29,16 @@ public class OllamaService {
     private final ChatClient chatClient;
     private final UserRepository userRepository;
     private final CreatureRepository creatureRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     public OllamaService(ChatClient.Builder chatClientBuilder,
                          UserRepository userRepository,
-                         CreatureRepository creatureRepository) {
+                         CreatureRepository creatureRepository,
+                         ChatMessageRepository chatMessageRepository) {
         this.chatClient = chatClientBuilder.build();
         this.userRepository = userRepository;
         this.creatureRepository = creatureRepository;
+        this.chatMessageRepository = chatMessageRepository;
     }
 
     /**
@@ -34,13 +49,60 @@ public class OllamaService {
      * @return Respuesta generada por el modelo de IA.
      */
     public String chat(String username, String message) {
-        String systemPrompt = buildSystemPrompt(username);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return "Usuario no encontrado";
+        }
+        User user = userOpt.get();
 
-        return chatClient.prompt()
-                .system(systemPrompt)
-                .user(message)
+        // 1. Guardar mensaje del usuario
+        ChatMessage userMsg = new ChatMessage(user, "USER", message);
+        chatMessageRepository.save(userMsg);
+
+        // 2. Obtener historial (max 20) y ordenarlo cronologicamente
+        List<ChatMessage> history = chatMessageRepository.findTop20ByUserIdOrderByCreatedAtDesc(user.getId());
+        Collections.reverse(history);
+
+        // 3. Preparar lista de mensajes para Spring AI
+        List<Message> springAiMessages = new ArrayList<>();
+        springAiMessages.add(new SystemMessage(buildSystemPrompt(username)));
+
+        for (ChatMessage msg : history) {
+            if ("USER".equalsIgnoreCase(msg.getRole())) {
+                springAiMessages.add(new UserMessage(msg.getContent()));
+            } else {
+                springAiMessages.add(new AssistantMessage(msg.getContent()));
+            }
+        }
+
+        // 4. Llamar al modelo de IA
+        String responseContent = chatClient.prompt()
+                .messages(springAiMessages)
                 .call()
                 .content();
+
+        // 5. Guardar respuesta del asistente
+        ChatMessage assistantMsg = new ChatMessage(user, "ASSISTANT", responseContent);
+        chatMessageRepository.save(assistantMsg);
+
+        return responseContent;
+    }
+
+    /**
+     * Obtiene el historial reciente de chat del usuario.
+     *
+     * @param username Nombre de usuario.
+     * @return Lista de mensajes del historial.
+     */
+    public List<ChatMessage> getChatHistory(String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        List<ChatMessage> history = chatMessageRepository.findTop20ByUserIdOrderByCreatedAtDesc(userOpt.get().getId());
+        Collections.reverse(history);
+        return history;
     }
 
     /**
@@ -67,6 +129,7 @@ public class OllamaService {
                 "Eres %s, una criatura virtual de tipo %s con personalidad %s. " +
                 "Tu nivel actual es %d, tienes %d/100 de energia y %d/100 de felicidad. " +
                 "%s" +
+                "" +
                 "Responde siempre en primera persona, como si fueras la criatura hablando con tu entrenador. " +
                 "Adapta tu tono a tu personalidad. Se breve.",
                 creature.getName(),

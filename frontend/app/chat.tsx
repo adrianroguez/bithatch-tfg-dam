@@ -43,25 +43,46 @@ export default function ChatScreen() {
   useEffect(() => {
     const initChat = async () => {
       try {
+        let name = "TU CRIATURA";
         const res = await fetch(`${apiUrl}/creatures/my`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
           const data = await res.json();
-          setCreatureName(data.name || "TU CRIATURA");
-          
-          setChatHistory([{
-            id: "initial",
-            text: `¡HOLA! SOY ${data.name.toUpperCase()}, ¿EN QUÉ PUEDO AYUDARTE HOY?`,
-            sender: "creature"
-          }]);
+          name = data.name || "TU CRIATURA";
+          setCreatureName(name);
+        }
+
+        // Cargar historial de chat
+        const historyRes = await fetch(`${apiUrl}/ai/chat/history`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (historyRes.ok) {
+          const historyData = await historyRes.json();
+          if (historyData && historyData.length > 0) {
+            const mappedHistory = historyData.map((msg: any) => ({
+              id: msg.id,
+              text: msg.content,
+              sender: msg.role === "USER" ? "user" : "creature"
+            }));
+            setChatHistory(mappedHistory);
+          } else {
+            // Sin historial, greeting por defecto
+            setChatHistory([{
+              id: "initial",
+              text: `¡HOLA! SOY ${name.toUpperCase()}, ¿EN QUÉ PUEDO AYUDARTE HOY?`,
+              sender: "creature"
+            }]);
+          }
         } else {
           setChatHistory([{
             id: "initial",
-            text: "¡HOLA! ESTOY LISTA PARA ENTRENAR. ¿QUÉ HAREMOS HOY?",
+            text: `¡HOLA! SOY ${name.toUpperCase()}, ¿EN QUÉ PUEDO AYUDARTE HOY?`,
             sender: "creature"
           }]);
         }
+
       } catch (err) {
         setChatHistory([{
           id: "initial",

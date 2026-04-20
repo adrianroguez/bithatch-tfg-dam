@@ -1,0 +1,86 @@
+services:
+  # ── Ollama (servidor de modelos de IA) ────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: bithatch-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - bithatch-network
+    # Descomentar si tienes GPU NVIDIA:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # ── Descarga automática del modelo al arrancar ────────────────
+  model-init:
+    image: curlimages/curl:latest
+    container_name: bithatch-model-init
+    restart: "no"
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - bithatch-network
+    command: >
+      sh -c "
+        echo 'Descargando goosedev/luna...' &&
+        curl -X POST http://ollama:11434/api/pull \
+          -H 'Content-Type: application/json' \
+          -d '{\"name\": \"goosedev/luna\", \"stream\": false}' &&
+        echo 'Modelo goosedev/luna listo.'
+      "
+
+  # ── Backend (Spring Boot + H2 en memoria) ─────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bithatch-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Base de datos H2 en memoria
+      SPRING_DATASOURCE_URL: jdbc:h2:mem:bithatchdb
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: ""
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+      # Consola H2 (útil en desarrollo; desactivar en producción)
+      SPRING_H2_CONSOLE_ENABLED: "true"
+      SPRING_H2_CONSOLE_PATH: /h2-console
+      # JWT
+      APP_JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      APP_JWT_EXPIRATION_SECONDS: "86400"
+      # Spring AI - Ollama
+      SPRING_AI_OLLAMA_BASE_URL: http://ollama:11434
+      SPRING_AI_OLLAMA_CHAT_MODEL: goosedev/luna
+      SPRING_AI_OLLAMA_CHAT_OPTIONS_TEMPERATURE: "0.8"
+    depends_on:
+      model-init:
+        condition: service_completed_successfully
+    networks:
+      - bithatch-network
+
+volumes:
+  ollama_data:
+
+networks:
+  bithatch-network:
+    driver: bridge

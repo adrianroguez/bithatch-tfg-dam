@@ -71,6 +71,9 @@ public class SecurityConfig {
                                                 // Rutas protegidas solo para ADMIN
                                                 .requestMatchers("/users/**").hasRole("ADMIN")
 
+                                                // Chat con IA (cualquier usuario autenticado)
+                                                .requestMatchers("/ai/**").authenticated()
+
                                                 // Todo lo demas requiere estar logueado (Token valido)
                                                 .anyRequest().authenticated())
 

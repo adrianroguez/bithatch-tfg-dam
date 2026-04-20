@@ -9,6 +9,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
+
 import ies.puerto.bithatch.security.JwtAuthenticationFilter;
 
 /**
@@ -37,7 +42,10 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                // 1. Deshabilitar CSRF (estandar en APIs REST con JWT)
+                                // 1. CORS Configuration
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                                // 2. Deshabilitar CSRF (estandar en APIs REST con JWT)
                                 .csrf(csrf -> csrf.disable())
 
                                 // 2. CRITICO PARA H2: Permitir que la web use Frames (marcos)
@@ -75,5 +83,26 @@ public class SecurityConfig {
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
+        }
+
+        /**
+         * Bean para configurar CORS (Cross-Origin Resource Sharing).
+         * 
+         * @return La fuente de configuracion CORS.
+         */
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                // Permitimos el origen del frontend (detectado en el error)
+                configuration.setAllowedOrigins(Arrays.asList(
+                                "http://192.168.1.220:8081",
+                                "http://localhost:8081"));
+                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+                configuration.setAllowCredentials(true);
+
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
         }
 }

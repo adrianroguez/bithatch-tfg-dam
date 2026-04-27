@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Constants from "expo-constants";
 import { AuthContext } from "./AuthContext";
 
 /**

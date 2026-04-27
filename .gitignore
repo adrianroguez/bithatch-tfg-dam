@@ -393,6 +393,8 @@ frontend/.expo/
 frontend/node_modules/
 # Lock file de npm (se regenera en cada instalacion limpia)
 frontend/package-lock.json
+# Archivo de variables de entorno (secrets)
+frontend/.env
 
 ## IDEs ##
 # IntelliJ IDEA

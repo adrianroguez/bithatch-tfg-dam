@@ -1,8 +1,9 @@
-import Constants from "expo-constants";
 import React, { createContext, useEffect, useMemo, useState } from "react";
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl ?? "http://192.168.1.232:8080";
-const TOKEN_KEY = Constants.expoConfig?.extra?.tokenKey ?? "token";
+const API_IP = process.env.EXPO_PUBLIC_API_IP ?? "192.168.1.232";
+const API_PORT = process.env.EXPO_PUBLIC_API_PORT ?? "8080";
+const API_URL = `http://${API_IP}:${API_PORT}`;
+const TOKEN_KEY = "token";
 
 /**
  * Interfaz de respuesta de autenticacion.

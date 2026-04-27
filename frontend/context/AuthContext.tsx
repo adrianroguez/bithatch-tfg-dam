@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useMemo, useState } from "react";
 
-const API_IP = process.env.EXPO_PUBLIC_API_IP ?? "192.168.1.232";
-const API_PORT = process.env.EXPO_PUBLIC_API_PORT ?? "8080";
+const API_IP = process.env.EXPO_PUBLIC_API_IP;
+const API_PORT = process.env.EXPO_PUBLIC_API_PORT;
 const API_URL = `http://${API_IP}:${API_PORT}`;
 const TOKEN_KEY = "token";
 
